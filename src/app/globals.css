@@ -1,26 +1,161 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
+/* =============================================
+   THEME TOKENS — maps CSS vars to Tailwind utils
+   ============================================= */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --radius-sm:  calc(var(--radius) - 4px);
+  --radius-md:  calc(var(--radius) - 2px);
+  --radius-lg:  var(--radius);
+  --radius-xl:  calc(var(--radius) + 4px);
+
+  --color-background:         var(--background);
+  --color-foreground:         var(--foreground);
+  --color-card:               var(--card);
+  --color-card-foreground:    var(--card-foreground);
+  --color-primary:            var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary:          var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted:              var(--muted);
+  --color-muted-foreground:   var(--muted-foreground);
+  --color-accent:             var(--accent);
+  --color-accent-foreground:  var(--accent-foreground);
+  --color-destructive:        var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border:             var(--border);
+  --color-input:              var(--input);
+  --color-ring:               var(--ring);
+
+  /* Brand colors — usable as bg-brand-blue, text-brand-gold, etc. */
+  --color-brand-blue:     #0244C6;
+  --color-brand-midnight: #012775;
+  --color-brand-gold:     #D4AF37;
+  --color-brand-white:    #FFFFFF;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* =============================================
+   LIGHT MODE TOKENS
+   ============================================= */
+:root {
+  --radius: 0.625rem;
+
+  --background:          oklch(1 0 0);
+  --foreground:          oklch(0.15 0.02 255);
+
+  --card:                oklch(1 0 0);
+  --card-foreground:     oklch(0.15 0.02 255);
+
+  --primary:             oklch(0.44 0.18 256);   /* #0244C6 */
+  --primary-foreground:  oklch(1 0 0);
+
+  --secondary:           oklch(0.27 0.14 258);   /* #012775 */
+  --secondary-foreground: oklch(1 0 0);
+
+  --accent:              oklch(0.73 0.13 82);    /* #D4AF37 */
+  --accent-foreground:   oklch(0.27 0.14 258);
+
+  --muted:               oklch(0.97 0 0);
+  --muted-foreground:    oklch(0.55 0.01 255);
+
+  --destructive:         oklch(0.58 0.22 27);
+  --destructive-foreground: oklch(1 0 0);
+
+  --border:              oklch(0.92 0 0);
+  --input:               oklch(0.92 0 0);
+  --ring:                oklch(0.44 0.18 256);
+}
+
+/* =============================================
+   DARK MODE TOKENS
+   ============================================= */
+.dark {
+  --background:          oklch(0.12 0.03 258);
+  --foreground:          oklch(0.97 0 0);
+
+  --card:                oklch(0.16 0.03 258);
+  --card-foreground:     oklch(0.97 0 0);
+
+  --primary:             oklch(0.55 0.20 256);
+  --primary-foreground:  oklch(1 0 0);
+
+  --secondary:           oklch(0.22 0.07 258);
+  --secondary-foreground: oklch(0.97 0 0);
+
+  --accent:              oklch(0.73 0.13 82);
+  --accent-foreground:   oklch(0.12 0.03 258);
+
+  --muted:               oklch(0.22 0.03 258);
+  --muted-foreground:    oklch(0.65 0.01 255);
+
+  --destructive:         oklch(0.40 0.18 27);
+  --destructive-foreground: oklch(1 0 0);
+
+  --border:              oklch(0.26 0.03 258);
+  --input:               oklch(0.26 0.03 258);
+  --ring:                oklch(0.55 0.20 256);
+}
+
+/* =============================================
+   BASE STYLES — no @apply needed in v4
+   ============================================= */
+*,
+*::before,
+*::after {
+  border-color: var(--color-border);
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* =============================================
+   CUSTOM SCROLLBAR
+   ============================================= */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: oklch(0.75 0 0 / 0.4);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: oklch(0.55 0 0 / 0.6);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background-color: oklch(0.4 0 0 / 0.5);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: oklch(0.55 0 0 / 0.7);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0.75 0 0 / 0.4) transparent;
+}
+
+/* =============================================
+   FOCUS RING UTILITY
+   ============================================= */
+.focus-ring {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
 }
