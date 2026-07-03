@@ -1,46 +1,40 @@
-
 import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/services/supabase/middleware'
-import { canAccessRoute } from '@/lib/permissions'
-import { RoleName } from '@/types/auth.types'
 
 const PUBLIC_ROUTES = ['/sign-in', '/forgot-password', '/reset-password']
 
 export async function middleware(request: NextRequest) {
-  const { supabaseResponse, user, supabase } = await updateSession(request)
   const path = request.nextUrl.pathname
+  const isPublicRoute = PUBLIC_ROUTES.some((r) => path.startsWith(r))
 
-  const isPublicRoute = PUBLIC_ROUTES.some((route) => path.startsWith(route))
+  try {
+    const { supabaseResponse, user } = await Promise.race([
+      updateSession(request),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('timeout')), 3000)
+      ),
+    ])
 
-  if (!user && !isPublicRoute) {
+    if (!user && !isPublicRoute) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/sign-in'
+      return NextResponse.redirect(url)
+    }
+
+    if (user && isPublicRoute) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/'
+      return NextResponse.redirect(url)
+    }
+
+    return supabaseResponse
+
+  } catch {
+    if (isPublicRoute) return NextResponse.next()
     const url = request.nextUrl.clone()
     url.pathname = '/sign-in'
     return NextResponse.redirect(url)
   }
-
-  if (user && isPublicRoute) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/'
-    return NextResponse.redirect(url)
-  }
-
-  // Role-level route protection — only runs for authenticated users on protected routes
-  if (user && !isPublicRoute && path !== '/') {
-    const { data: roleRows } = await supabase
-      .from('user_roles')
-      .select('roles(name)')
-      .eq('user_id', user.id)
-
-    const roles = (roleRows ?? []).map((r: any) => r.roles?.name).filter(Boolean) as RoleName[]
-
-    if (!canAccessRoute(roles, path)) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/unauthorized'
-      return NextResponse.redirect(url)
-    }
-  }
-
-  return supabaseResponse
 }
 
 export const config = {

@@ -1,40 +1,28 @@
-import { ThemeToggle } from '@/components/shared/theme-toggle'
-
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#012775] px-4 relative overflow-hidden">
-
-      {/* Top-right theme toggle */}
-      <div className="absolute top-4 right-4 z-10">
-        <ThemeToggle />
-      </div>
-
-      {/* Dot grid background */}
-      <div
-        className="absolute inset-0 opacity-[0.04]"
-        style={{
-          backgroundImage: `radial-gradient(circle, white 1px, transparent 1px)`,
-          backgroundSize: '28px 28px',
-        }}
-      />
-
-      {/* Glow behind card */}
-      <div className="absolute w-[500px] h-[500px] rounded-full bg-[#0244C6]/30 blur-[120px] pointer-events-none" />
-
-      <div className="relative w-full max-w-md space-y-6">
-        {/* Logo above card */}
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-white tracking-tight">
-            Quick<span className="text-[#D4AF37]">Venue</span>
+    <div
+      style={{
+        minHeight: '100vh',
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#012775',
+        padding: '16px',
+        position: 'relative',
+      }}
+    >
+      <div style={{ position: 'relative', width: '100%', maxWidth: '448px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <h1 style={{ fontSize: '2.25rem', fontWeight: 700, color: 'white', letterSpacing: '-0.025em' }}>
+            Quick<span style={{ color: '#D4AF37' }}>Venue</span>
           </h1>
-          <p className="text-white/40 text-sm mt-1 tracking-widest uppercase">
+          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.875rem', marginTop: '4px', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
             Internal OS
           </p>
         </div>
-
         {children}
-
-        <p className="text-center text-white/25 text-xs">
+        <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.25)', fontSize: '0.75rem', marginTop: '24px' }}>
           Access restricted to Quick Venue team members only
         </p>
       </div>

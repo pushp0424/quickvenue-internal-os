@@ -1,74 +1,62 @@
-'use server'
+import { createClient } from '@/services/supabase/client'
+import { RoleName, AuthUser } from '@/types/auth.types'
 
-import { createClient as createServiceClient } from '@supabase/supabase-js'
-import { createClient as createServerClient } from '@/services/supabase/server'
-import { RoleName } from '@/types/auth.types'
-
-// Service-role client — server-only, bypasses RLS. Never expose to browser.
-function getAdminClient() {
-  return createServiceClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
+export async function signIn(email: string, password: string) {
+  const supabase = createClient()
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error) throw error
+  return data
 }
 
-export async function createTeamMember(input: {
-  email: string
-  fullName: string
-  city?: string
-  designation?: string
-  role: RoleName
-}) {
-  // 1. Verify caller is admin/founder
-  const supabase = await createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not authenticated')
+export async function signOut() {
+  const supabase = createClient()
+  const { error } = await supabase.auth.signOut()
+  if (error) throw error
+}
 
-  const { data: callerRoles } = await supabase
-    .from('user_roles')
-    .select('roles(name)')
-    .eq('user_id', user.id)
-
-  const isAuthorized = (callerRoles ?? []).some(
-    (r: any) => r.roles?.name === 'founder' || r.roles?.name === 'admin'
-  )
-  if (!isAuthorized) throw new Error('Not authorized to create users')
-
-  // 2. Create the auth user with service role (bypasses RLS)
-  const admin = getAdminClient()
-  const { data: newUser, error: createError } = await admin.auth.admin.createUser({
-    email: input.email,
-    email_confirm: true,
-    password: crypto.randomUUID(), // temp password — user resets via emailed link
-    user_metadata: { full_name: input.fullName },
+export async function sendPasswordReset(email: string) {
+  const supabase = createClient()
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/reset-password`,
   })
-  if (createError) throw createError
+  if (error) throw error
+}
 
-  // 3. profiles row auto-created by DB trigger — update extra fields
-  await admin
-    .from('profiles')
-    .update({ city: input.city, designation: input.designation })
-    .eq('id', newUser.user.id)
+export async function updatePassword(newPassword: string) {
+  const supabase = createClient()
+  const { error } = await supabase.auth.updateUser({ password: newPassword })
+  if (error) throw error
+}
 
-  // 4. Assign role
-  const { data: roleRow } = await admin
-    .from('roles')
-    .select('id')
-    .eq('name', input.role)
-    .single()
+export async function getCurrentAuthUser(): Promise<AuthUser | null> {
+  try {
+    const supabase = createClient()
 
-  if (roleRow) {
-    await admin.from('user_roles').insert({
-      user_id: newUser.user.id,
-      role_id: roleRow.id,
-      assigned_by: user.id,
-    })
+    // Use getSession instead of getUser — faster, no network call
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.user) return null
+
+    const user = session.user
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError || !profile) return null
+
+    const { data: roleRows } = await supabase
+      .from('user_roles')
+      .select('roles(name)')
+      .eq('user_id', user.id)
+
+    const roles = (roleRows ?? [])
+      .map((r: any) => r.roles?.name)
+      .filter(Boolean) as RoleName[]
+
+    return { profile, roles }
+  } catch {
+    return null
   }
-
-  // 5. Trigger password-set email
-  await admin.auth.resetPasswordForEmail(input.email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/reset-password`,
-  })
-
-  return newUser.user
 }

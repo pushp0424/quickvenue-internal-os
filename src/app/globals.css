@@ -159,3 +159,53 @@ body {
   outline: 2px solid var(--color-ring);
   outline-offset: 2px;
 }
+/* =============================================
+   SMOOTH PAGE TRANSITIONS
+   ============================================= */
+main {
+  animation: fadeIn 0.15s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =============================================
+   BETTER FOCUS STYLES
+   ============================================= */
+:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* =============================================
+   MOBILE TAP TARGETS
+   ============================================= */
+@media (max-width: 768px) {
+  button, a {
+    min-height: 44px;
+  }
+}
+
+/* =============================================
+   SELECTION COLOR
+   ============================================= */
+::selection {
+  background-color: #0244C6;
+  color: white;
+}
+
+/* =============================================
+   SMOOTH SCROLLING
+   ============================================= */
+html {
+  scroll-behavior: smooth;
+}

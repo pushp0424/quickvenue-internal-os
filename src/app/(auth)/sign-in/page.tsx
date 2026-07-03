@@ -2,18 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Eye, EyeOff, LogIn } from 'lucide-react'
 import { signIn } from '@/features/auth/services/auth.service'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 
 export default function SignInPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -26,98 +20,116 @@ export default function SignInPage() {
       router.push('/')
       router.refresh()
     } catch (err: any) {
-      setError(err.message ?? 'Invalid email or password.')
-    } finally {
+  console.error('FULL ERROR:', JSON.stringify(err))
+  console.error('ERROR MESSAGE:', err?.message)
+  console.error('ERROR STATUS:', err?.status)
+  const msg = err?.message || err?.error_description
+  setError(msg ? msg : `Error ${err?.status}: ${err?.name || 'Sign in failed'}`)
+} finally {
       setLoading(false)
     }
   }
 
   return (
-    <Card className="border border-white/10 bg-white/95 dark:bg-[#0d1b3e] shadow-2xl rounded-2xl">
-      <CardHeader className="space-y-1 text-center pt-8 pb-4">
-        <CardTitle className="text-xl font-bold text-[#012775] dark:text-white">
+    <div style={{
+      background: 'rgba(255,255,255,0.97)',
+      borderRadius: '16px',
+      padding: '40px',
+      boxShadow: '0 25px 50px rgba(0,0,0,0.4)',
+      width: '100%',
+    }}>
+      <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#012775', margin: 0 }}>
           Welcome back
-        </CardTitle>
-        <CardDescription className="text-sm">
+        </h2>
+        <p style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '4px' }}>
           Sign in to your team account
-        </CardDescription>
-      </CardHeader>
+        </p>
+      </div>
 
-      <CardContent className="px-8 pb-8">
-        <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div>
+          <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#374151', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Email Address
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@quickvenue.com"
+            required
+            style={{
+              width: '100%',
+              padding: '10px 14px',
+              border: '1px solid #d1d5db',
+              borderRadius: '8px',
+              fontSize: '0.875rem',
+              outline: 'none',
+              boxSizing: 'border-box',
+              color: '#111827',
+            }}
+          />
+        </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Email address
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@quickvenue.com"
-              autoComplete="email"
-              required
-              className="h-11"
-            />
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+            <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#374151', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Password
+            </label>
+            <a href="/forgot-password" style={{ fontSize: '0.75rem', color: '#0244C6', textDecoration: 'none' }}>
+              Forgot password?
+            </a>
           </div>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            style={{
+              width: '100%',
+              padding: '10px 14px',
+              border: '1px solid #d1d5db',
+              borderRadius: '8px',
+              fontSize: '0.875rem',
+              outline: 'none',
+              boxSizing: 'border-box',
+              color: '#111827',
+            }}
+          />
+        </div>
 
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="password" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Password
-              </Label>
-              <a href="/forgot-password" className="text-xs text-[#0244C6] hover:underline">
-                Forgot password?
-              </a>
-            </div>
-            <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
-                required
-                className="h-11 pr-11"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                tabIndex={-1}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
+        {error && (
+          <div style={{
+            background: '#fef2f2',
+            border: '1px solid #fecaca',
+            borderRadius: '8px',
+            padding: '12px 16px',
+            color: '#dc2626',
+            fontSize: '0.875rem',
+          }}>
+            {error}
           </div>
+        )}
 
-          {error && (
-            <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3">
-              <p className="text-sm text-red-600">{error}</p>
-            </div>
-          )}
-
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full h-11 bg-[#0244C6] hover:bg-[#012775] text-white font-semibold rounded-lg"
-          >
-            {loading ? (
-              <span className="flex items-center gap-2">
-                <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Signing in...
-              </span>
-            ) : (
-              <span className="flex items-center gap-2">
-                <LogIn className="h-4 w-4" />
-                Sign In
-              </span>
-            )}
-          </Button>
-
-        </form>
-      </CardContent>
-    </Card>
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            width: '100%',
+            padding: '12px',
+            background: loading ? '#6b7280' : '#0244C6',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '0.875rem',
+            fontWeight: 600,
+            cursor: loading ? 'not-allowed' : 'pointer',
+            marginTop: '4px',
+          }}
+        >
+          {loading ? 'Signing in...' : 'Sign In'}
+        </button>
+      </form>
+    </div>
   )
 }

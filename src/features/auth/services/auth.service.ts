@@ -29,26 +29,34 @@ export async function updatePassword(newPassword: string) {
 }
 
 export async function getCurrentAuthUser(): Promise<AuthUser | null> {
-  const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
+  try {
+    const supabase = createClient()
 
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+    // Use getSession instead of getUser — faster, no network call
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.user) return null
 
-  if (profileError || !profile) return null
+    const user = session.user
 
-  const { data: roleRows } = await supabase
-    .from('user_roles')
-    .select('roles(name)')
-    .eq('user_id', user.id)
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single()
 
-  const roles = (roleRows ?? [])
-    .map((r: any) => r.roles?.name)
-    .filter(Boolean) as RoleName[]
+    if (profileError || !profile) return null
 
-  return { profile, roles }
+    const { data: roleRows } = await supabase
+      .from('user_roles')
+      .select('roles(name)')
+      .eq('user_id', user.id)
+
+    const roles = (roleRows ?? [])
+      .map((r: any) => r.roles?.name)
+      .filter(Boolean) as RoleName[]
+
+    return { profile, roles }
+  } catch {
+    return null
+  }
 }
