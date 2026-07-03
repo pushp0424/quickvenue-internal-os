@@ -2,12 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Eye, EyeOff, LogIn } from 'lucide-react'
 import { signIn } from '@/features/auth/services/auth.service'
 
 export default function SignInPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -20,36 +22,33 @@ export default function SignInPage() {
       router.push('/')
       router.refresh()
     } catch (err: any) {
-  console.error('FULL ERROR:', JSON.stringify(err))
-  console.error('ERROR MESSAGE:', err?.message)
-  console.error('ERROR STATUS:', err?.status)
-  const msg = err?.message || err?.error_description
-  setError(msg ? msg : `Error ${err?.status}: ${err?.name || 'Sign in failed'}`)
-} finally {
+      const msg = err?.message
+      if (!msg || msg === '{}' || err?.status === 500) {
+        setError('Connection error. Please try again in a moment.')
+      } else if (err?.status === 400) {
+        setError('Invalid email or password.')
+      } else {
+        setError(msg ?? 'Sign in failed.')
+      }
+    } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div style={{
-      background: 'rgba(255,255,255,0.97)',
-      borderRadius: '16px',
-      padding: '40px',
-      boxShadow: '0 25px 50px rgba(0,0,0,0.4)',
-      width: '100%',
-    }}>
-      <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#012775', margin: 0 }}>
+    <div className="bg-white/95 dark:bg-[#0d1b3e] rounded-2xl shadow-2xl border border-white/10 p-10 w-full">
+      <div className="text-center mb-8">
+        <h2 className="text-xl font-bold text-[#012775] dark:text-white">
           Welcome back
         </h2>
-        <p style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '4px' }}>
+        <p className="text-sm text-muted-foreground mt-1">
           Sign in to your team account
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        <div>
-          <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#374151', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Email Address
           </label>
           <input
@@ -58,76 +57,60 @@ export default function SignInPage() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@quickvenue.com"
             required
-            style={{
-              width: '100%',
-              padding: '10px 14px',
-              border: '1px solid #d1d5db',
-              borderRadius: '8px',
-              fontSize: '0.875rem',
-              outline: 'none',
-              boxSizing: 'border-box',
-              color: '#111827',
-            }}
+            className="w-full px-4 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
 
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-            <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#374151', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Password
             </label>
-            <a href="/forgot-password" style={{ fontSize: '0.75rem', color: '#0244C6', textDecoration: 'none' }}>
+            <a href="/forgot-password" className="text-xs text-[#0244C6] hover:underline">
               Forgot password?
             </a>
           </div>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{
-              width: '100%',
-              padding: '10px 14px',
-              border: '1px solid #d1d5db',
-              borderRadius: '8px',
-              fontSize: '0.875rem',
-              outline: 'none',
-              boxSizing: 'border-box',
-              color: '#111827',
-            }}
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full px-4 py-2.5 pr-11 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              tabIndex={-1}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
         </div>
 
         {error && (
-          <div style={{
-            background: '#fef2f2',
-            border: '1px solid #fecaca',
-            borderRadius: '8px',
-            padding: '12px 16px',
-            color: '#dc2626',
-            fontSize: '0.875rem',
-          }}>
-            {error}
+          <div className="rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 px-4 py-3">
+            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
           </div>
         )}
 
         <button
           type="submit"
           disabled={loading}
-          style={{
-            width: '100%',
-            padding: '12px',
-            background: loading ? '#6b7280' : '#0244C6',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '0.875rem',
-            fontWeight: 600,
-            cursor: loading ? 'not-allowed' : 'pointer',
-            marginTop: '4px',
-          }}
+          className="w-full py-2.5 bg-[#0244C6] hover:bg-[#012775] text-white font-semibold rounded-lg text-sm transition-colors flex items-center justify-center gap-2 mt-2"
         >
-          {loading ? 'Signing in...' : 'Sign In'}
+          {loading ? (
+            <>
+              <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Signing in...
+            </>
+          ) : (
+            <>
+              <LogIn className="h-4 w-4" />
+              Sign In
+            </>
+          )}
         </button>
       </form>
     </div>
