@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useAuth } from '@/context/auth.provider'
+import { useAuth } from '@/context/auth-provider'
 import { getVisibleNavItems } from '@/lib/nav-config'
 import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'

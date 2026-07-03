@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/context/auth.provider'
+import { useAuth } from '@/context/auth-provider'
 import { useLeadStats } from '@/features/crm/hooks/use-leads'
 import { useVenueStats } from '@/features/crm/hooks/use-venues'
 import { StatCard } from '@/components/shared/stat-card'

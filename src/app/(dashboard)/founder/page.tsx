@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/context/auth.provider'
+import { useAuth } from '@/context/auth-provider'
 import { StatCard } from '@/components/shared/stat-card'
 import { SectionHeader } from '@/components/shared/section-header'
 import { RecentTeamTable } from '@/features/dashboard/components/recent-team-table'

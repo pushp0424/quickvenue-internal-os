@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useTeamMembers } from '@/features/team/hooks/use-team'
 import { MemberActions } from '@/features/team/components/member-actions'
-import { useAuth } from '@/context/auth.provider'
+import { useAuth } from '@/context/auth-provider'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'

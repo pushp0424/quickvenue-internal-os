@@ -1,4 +1,4 @@
-import { AuthProvider } from '@/context/auth.provider'
+import { AuthProvider } from '@/context/auth-provider'
 import { QueryProvider } from '@/context/query-provider'
 import { ThemeProvider } from '@/context/theme-provider'
 import './globals.css'

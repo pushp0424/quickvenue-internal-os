@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/context/auth.provider'
+import { useAuth } from '@/context/auth-provider'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { LogoutButton } from '@/components/shared/logout-button'
 import { MobileSidebar } from '@/components/layout/mobile-sidebar'
