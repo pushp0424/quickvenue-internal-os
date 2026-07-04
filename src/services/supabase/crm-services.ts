@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createClient } from '@/services/supabase/client'
+import type { Activity } from '@/components/shared/activity-timeline'
 
 async function getSession() {
   const supabase = createClient()
@@ -95,6 +96,58 @@ export async function updateB2BLeadStage(id: string, stage: string) {
   return data
 }
 
+export async function getB2BLeadById(id: string): Promise<Record<string, any>> {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('leads' as any)
+    .select('*, assignee:profiles!leads_assigned_to_fkey(id, full_name, avatar_url), city:cities(id, name)')
+    .eq('id', id)
+    .single()
+  if (error) throw error
+  return data as any
+}
+
+export async function updateB2BLead(id: string, input: Record<string, any>) {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('leads' as any)
+    .update(input)
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function getB2BLeadActivities(leadId: string): Promise<Activity[]> {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('lead_activities')
+    .select('*, performer:profiles!lead_activities_performed_by_fkey(id, full_name)')
+    .eq('lead_id', leadId)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return (data ?? []) as any
+}
+
+export async function logB2BLeadActivity(input: {
+  leadId: string
+  activityType: string
+  content: string
+}) {
+  const supabase = createClient()
+  const session = await getSession()
+  const { error } = await supabase
+    .from('lead_activities')
+    .insert({
+      lead_id: input.leadId,
+      performed_by: session?.user.id ?? null,
+      activity_type: input.activityType,
+      content: input.content,
+    } as any)
+  if (error) throw error
+}
+
 // =========================================
 // B2C CRM
 // =========================================
@@ -179,4 +232,56 @@ export async function updateB2CLeadStage(
     .single()
   if (error) throw error
   return data
+}
+
+export async function getB2CLeadById(id: string): Promise<Record<string, any>> {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('customer_leads' as any)
+    .select('*, assignee:profiles!customer_leads_assigned_to_fkey(id, full_name, avatar_url), city:cities(id, name)')
+    .eq('id', id)
+    .single()
+  if (error) throw error
+  return data as any
+}
+
+export async function updateB2CLead(id: string, input: Record<string, any>) {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('customer_leads' as any)
+    .update(input)
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function getB2CLeadActivities(customerLeadId: string): Promise<Activity[]> {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('customer_lead_activities')
+    .select('*, performer:profiles!customer_lead_activities_performed_by_fkey(id, full_name)')
+    .eq('customer_lead_id', customerLeadId)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return (data ?? []) as any
+}
+
+export async function logB2CLeadActivity(input: {
+  customerLeadId: string
+  activityType: string
+  content: string
+}) {
+  const supabase = createClient()
+  const session = await getSession()
+  const { error } = await supabase
+    .from('customer_lead_activities')
+    .insert({
+      customer_lead_id: input.customerLeadId,
+      performed_by: session?.user.id ?? null,
+      activity_type: input.activityType,
+      content: input.content,
+    } as any)
+  if (error) throw error
 }

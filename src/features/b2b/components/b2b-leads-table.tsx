@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useAuth } from '@/context/auth-provider'
 import { isCityScoped } from '@/lib/permissions'
 import { useB2BLeads, useUpdateB2BLeadStage } from '@/features/b2b/hooks/use-b2b-leads'
@@ -106,25 +107,27 @@ export function B2BLeadsTable({ assignedToMe }: Props = {}) {
                 key={lead.id}
                 className="flex items-center gap-4 px-6 py-4 border-b last:border-0 hover:bg-muted/40 transition-colors"
               >
-                <div className="h-9 w-9 rounded-lg bg-[#0244C6]/10 flex items-center justify-center shrink-0">
-                  <Building2 className="h-4 w-4 text-[#0244C6]" />
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate">{lead.venue_name ?? 'Unnamed Venue'}</p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {lead.venue_area && `${lead.venue_area} · `}
-                    {lead.venue_category && `${String(lead.venue_category).replace(/_/g, ' ')} · `}
-                    {lead.owner_name ?? 'No owner listed'}
-                  </p>
-                </div>
-
-                {lead.owner_phone && (
-                  <div className="hidden md:flex items-center gap-1.5 shrink-0 text-xs text-muted-foreground">
-                    <Phone className="h-3.5 w-3.5" />
-                    {lead.owner_phone}
+                <Link href={`/b2b/${lead.id}`} className="flex items-center gap-4 flex-1 min-w-0">
+                  <div className="h-9 w-9 rounded-lg bg-[#0244C6]/10 flex items-center justify-center shrink-0">
+                    <Building2 className="h-4 w-4 text-[#0244C6]" />
                   </div>
-                )}
+
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold truncate">{lead.venue_name ?? 'Unnamed Venue'}</p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {lead.venue_area && `${lead.venue_area} · `}
+                      {lead.venue_category && `${String(lead.venue_category).replace(/_/g, ' ')} · `}
+                      {lead.owner_name ?? 'No owner listed'}
+                    </p>
+                  </div>
+
+                  {lead.owner_phone && (
+                    <div className="hidden md:flex items-center gap-1.5 shrink-0 text-xs text-muted-foreground">
+                      <Phone className="h-3.5 w-3.5" />
+                      {lead.owner_phone}
+                    </div>
+                  )}
+                </Link>
 
                 <div className="shrink-0">
                   <Select
