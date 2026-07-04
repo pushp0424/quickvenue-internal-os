@@ -3,7 +3,9 @@
 import { useState } from 'react'
 import { useAuth } from '@/context/auth-provider'
 import { useCreateB2BLead, useCities } from '@/features/b2b/hooks/use-b2b-leads'
+import { useTeamMembers } from '@/features/team/hooks/use-team'
 import { isCityScoped } from '@/lib/permissions'
+import { B2B_PRIORITIES } from '@/features/b2b/components/b2b-priority-badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -23,26 +25,39 @@ const VENUE_CATEGORIES = [
   'resort', 'restaurant', 'conference_room', 'outdoor', 'other',
 ]
 
+const LEAD_SOURCES = ['cold_call', 'referral', 'walk_in', 'instagram', 'google', 'other']
+
+const initialFormState = (defaultCityId: string) => ({
+  venueName: '',
+  ownerName: '',
+  ownerPhone: '',
+  ownerWhatsapp: '',
+  ownerEmail: '',
+  venueCategory: '',
+  venueArea: '',
+  venueAddress: '',
+  cityId: defaultCityId,
+  capacity: '',
+  priceRange: '',
+  source: '',
+  priority: 'medium',
+  followUpDate: '',
+  assignedTo: '',
+  notes: '',
+})
+
 export function AddB2BLeadModal() {
   const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const { data: cities } = useCities()
+  const { data: teamMembers } = useTeamMembers()
   const createLead = useCreateB2BLead()
 
   const scoped = isCityScoped(user?.roles ?? [])
   const defaultCityId = user?.profile.city_id ?? ''
 
-  const [form, setForm] = useState({
-    venueName: '',
-    ownerName: '',
-    ownerPhone: '',
-    ownerEmail: '',
-    venueCategory: '',
-    venueArea: '',
-    cityId: defaultCityId,
-    notes: '',
-  })
+  const [form, setForm] = useState(initialFormState(defaultCityId))
 
   function updateField(key: string, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -62,20 +77,25 @@ export function AddB2BLeadModal() {
         venue_name: form.venueName,
         owner_name: form.ownerName || undefined,
         owner_phone: form.ownerPhone || undefined,
+        owner_whatsapp: form.ownerWhatsapp || undefined,
         owner_email: form.ownerEmail || undefined,
         venue_category: form.venueCategory || undefined,
         venue_area: form.venueArea || undefined,
+        venue_address: form.venueAddress || undefined,
         city_id: cityId,
+        capacity: form.capacity || undefined,
+        price_range: form.priceRange || undefined,
+        source: form.source || undefined,
+        priority: form.priority,
+        follow_up_date: form.followUpDate || undefined,
+        assigned_to: form.assignedTo || undefined,
         notes: form.notes || undefined,
         pipeline_stage: 'prospect',
       })
 
       toast.success(`${form.venueName} added to B2B pipeline`)
       setOpen(false)
-      setForm({
-        venueName: '', ownerName: '', ownerPhone: '', ownerEmail: '',
-        venueCategory: '', venueArea: '', cityId: defaultCityId, notes: '',
-      })
+      setForm(initialFormState(defaultCityId))
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to add lead')
     } finally {
@@ -92,7 +112,7 @@ export function AddB2BLeadModal() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[520px]">
+      <DialogContent className="sm:max-w-[560px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add B2B Lead</DialogTitle>
           <DialogDescription>
@@ -123,25 +143,37 @@ export function AddB2BLeadModal() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="ownerPhone">Owner Phone</Label>
+              <Label htmlFor="ownerPhone">Owner Phone <span className="text-red-500">*</span></Label>
               <Input
                 id="ownerPhone"
                 placeholder="9876543210"
                 value={form.ownerPhone}
                 onChange={(e) => updateField('ownerPhone', e.target.value)}
+                required
               />
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="ownerEmail">Owner Email</Label>
-            <Input
-              id="ownerEmail"
-              type="email"
-              placeholder="owner@venue.com"
-              value={form.ownerEmail}
-              onChange={(e) => updateField('ownerEmail', e.target.value)}
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="ownerWhatsapp">Owner WhatsApp</Label>
+              <Input
+                id="ownerWhatsapp"
+                placeholder="9876543210"
+                value={form.ownerWhatsapp}
+                onChange={(e) => updateField('ownerWhatsapp', e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ownerEmail">Owner Email</Label>
+              <Input
+                id="ownerEmail"
+                type="email"
+                placeholder="owner@venue.com"
+                value={form.ownerEmail}
+                onChange={(e) => updateField('ownerEmail', e.target.value)}
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -172,6 +204,16 @@ export function AddB2BLeadModal() {
             </div>
           </div>
 
+          <div className="space-y-1.5">
+            <Label htmlFor="venueAddress">Full Address</Label>
+            <Input
+              id="venueAddress"
+              placeholder="Street, landmark, pin code..."
+              value={form.venueAddress}
+              onChange={(e) => updateField('venueAddress', e.target.value)}
+            />
+          </div>
+
           {!scoped && (
             <div className="space-y-1.5">
               <Label>City <span className="text-red-500">*</span></Label>
@@ -190,6 +232,81 @@ export function AddB2BLeadModal() {
               </Select>
             </div>
           )}
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="capacity">Capacity</Label>
+              <Input
+                id="capacity"
+                placeholder="e.g. 200-500 pax"
+                value={form.capacity}
+                onChange={(e) => updateField('capacity', e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="priceRange">Price Range</Label>
+              <Input
+                id="priceRange"
+                placeholder="e.g. 1L-3L"
+                value={form.priceRange}
+                onChange={(e) => updateField('priceRange', e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label>Source</Label>
+              <Select value={form.source} onValueChange={(v) => updateField('source', v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select source" />
+                </SelectTrigger>
+                <SelectContent>
+                  {LEAD_SOURCES.map((s) => (
+                    <SelectItem key={s} value={s}>{s.replace(/_/g, ' ')}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Priority</Label>
+              <Select value={form.priority} onValueChange={(v) => updateField('priority', v)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {B2B_PRIORITIES.map((p) => (
+                    <SelectItem key={p} value={p} className="capitalize">{p}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="followUpDate">Follow-up Date</Label>
+              <Input
+                id="followUpDate"
+                type="date"
+                value={form.followUpDate}
+                onChange={(e) => updateField('followUpDate', e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Assigned To</Label>
+              <Select value={form.assignedTo} onValueChange={(v) => updateField('assignedTo', v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Me" />
+                </SelectTrigger>
+                <SelectContent>
+                  {(teamMembers ?? []).map((m) => (
+                    <SelectItem key={m.id} value={m.id}>{m.full_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="notes">Notes</Label>

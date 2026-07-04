@@ -30,17 +30,19 @@ export async function getB2BLeads(filters?: {
   stage?: string
   search?: string
   assignedTo?: string
+  priority?: string
 }): Promise<Record<string, any>[]> {
   const supabase = createClient()
   let q = supabase
     .from('leads' as any)
-    .select('*')
+    .select('*, city:cities(id, name), assignee:profiles!leads_assigned_to_fkey(id, full_name, avatar_url)')
     .eq('lead_type', 'b2b')
     .order('created_at', { ascending: false })
 
   if (filters?.cityId) q = q.eq('city_id', filters.cityId)
   if (filters?.stage) q = q.eq('pipeline_stage', filters.stage)
   if (filters?.assignedTo) q = q.eq('assigned_to', filters.assignedTo)
+  if (filters?.priority) q = q.eq('priority', filters.priority)
   if (filters?.search) {
     q = q.or(`venue_name.ilike.%${filters.search}%,owner_name.ilike.%${filters.search}%`)
   }

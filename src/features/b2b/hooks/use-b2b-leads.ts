@@ -19,6 +19,7 @@ export function useB2BLeads(filters?: {
   stage?: string
   search?: string
   assignedTo?: string
+  priority?: string
 }, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ['b2b-leads', filters],
