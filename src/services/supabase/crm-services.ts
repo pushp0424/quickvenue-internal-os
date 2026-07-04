@@ -100,7 +100,7 @@ export async function getB2CLeads(filters?: {
   cityId?: string
   stage?: string
   search?: string
-}) {
+}): Promise<Record<string, any>[]> {
   const supabase = createClient()
   let q = supabase
     .from('customer_leads' as any)
@@ -115,7 +115,7 @@ export async function getB2CLeads(filters?: {
 
   const { data, error } = await q
   if (error) throw error
-  return data ?? []
+  return (data ?? []) as any
 }
 
 export async function getB2CStats() {
