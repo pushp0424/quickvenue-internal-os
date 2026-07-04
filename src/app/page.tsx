@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/services/supabase/server'
-import { getPrimaryDashboard } from '@/lib/constants'
+import { getPrimaryDashboard } from '@/lib/permissions'
 import { RoleName } from '@/types/auth.types'
 
 export default async function RootPage() {

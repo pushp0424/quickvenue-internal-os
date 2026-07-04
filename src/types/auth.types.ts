@@ -7,6 +7,12 @@ export type RoleName =
   | 'venue_acquisition_executive'
   | 'developer'
   | 'hr'
+  | 'bda'
+  | 'sales_head'
+  | 'operations_head'
+  | 'finance'
+  | 'marketing_head'
+  | 'team_lead'
 
 export interface UserProfile {
   id: string
@@ -15,6 +21,7 @@ export interface UserProfile {
   phone: string | null
   avatar_url: string | null
   city: string | null
+  city_id: string | null
   designation: string | null
   is_active: boolean
   created_at: string

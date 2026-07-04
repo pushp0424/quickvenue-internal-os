@@ -3,7 +3,7 @@ import { updateSession } from '@/services/supabase/middleware'
 
 const PUBLIC_ROUTES = ['/sign-in', '/forgot-password', '/reset-password']
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname
   const isPublicRoute = PUBLIC_ROUTES.some((r) => path.startsWith(r))
 
