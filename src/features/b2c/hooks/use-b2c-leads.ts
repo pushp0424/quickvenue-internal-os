@@ -9,11 +9,13 @@ export function useB2CLeads(filters?: {
   cityId?: string
   stage?: string
   search?: string
-}) {
+  assignedTo?: string
+}, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ['b2c-leads', filters],
     queryFn: () => getB2CLeads(filters),
     staleTime: 2 * 60 * 1000,
+    enabled: options?.enabled,
   })
 }
 

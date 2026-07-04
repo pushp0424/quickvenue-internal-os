@@ -32,19 +32,24 @@ function formatDate(dateStr: string | null) {
   return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
 }
 
-export function B2CLeadsTable() {
+interface Props {
+  assignedToMe?: boolean
+}
+
+export function B2CLeadsTable({ assignedToMe }: Props = {}) {
   const { user } = useAuth()
   const [stageFilter, setStageFilter] = useState<B2CStage | 'all'>('all')
   const [search, setSearch] = useState('')
 
-  const scoped = isCityScoped(user?.roles ?? [])
+  const scoped = !assignedToMe && isCityScoped(user?.roles ?? [])
   const cityId = scoped ? (user?.profile.city_id ?? undefined) : undefined
 
   const { data: leads, isLoading } = useB2CLeads({
     cityId,
+    assignedTo: assignedToMe ? user?.profile.id : undefined,
     stage: stageFilter !== 'all' ? stageFilter : undefined,
     search: search || undefined,
-  })
+  }, { enabled: !assignedToMe || !!user })
 
   const updateStage = useUpdateB2CLeadStage()
 

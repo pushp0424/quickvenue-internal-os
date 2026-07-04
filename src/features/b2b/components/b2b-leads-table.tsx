@@ -24,19 +24,24 @@ interface B2BLeadRow {
   pipeline_stage: string | null
 }
 
-export function B2BLeadsTable() {
+interface Props {
+  assignedToMe?: boolean
+}
+
+export function B2BLeadsTable({ assignedToMe }: Props = {}) {
   const { user } = useAuth()
   const [stageFilter, setStageFilter] = useState<B2BStage | 'all'>('all')
   const [search, setSearch] = useState('')
 
-  const scoped = isCityScoped(user?.roles ?? [])
+  const scoped = !assignedToMe && isCityScoped(user?.roles ?? [])
   const cityId = scoped ? (user?.profile.city_id ?? undefined) : undefined
 
   const { data: leads, isLoading } = useB2BLeads({
     cityId,
+    assignedTo: assignedToMe ? user?.profile.id : undefined,
     stage: stageFilter !== 'all' ? stageFilter : undefined,
     search: search || undefined,
-  })
+  }, { enabled: !assignedToMe || !!user })
 
   const updateStage = useUpdateB2BLeadStage()
 

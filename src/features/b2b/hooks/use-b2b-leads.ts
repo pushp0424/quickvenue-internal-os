@@ -18,11 +18,13 @@ export function useB2BLeads(filters?: {
   cityId?: string
   stage?: string
   search?: string
-}) {
+  assignedTo?: string
+}, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ['b2b-leads', filters],
     queryFn: () => getB2BLeads(filters),
     staleTime: 2 * 60 * 1000,
+    enabled: options?.enabled,
   })
 }
 

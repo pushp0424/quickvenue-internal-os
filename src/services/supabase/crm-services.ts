@@ -28,6 +28,7 @@ export async function getB2BLeads(filters?: {
   cityId?: string
   stage?: string
   search?: string
+  assignedTo?: string
 }): Promise<Record<string, any>[]> {
   const supabase = createClient()
   let q = supabase
@@ -38,6 +39,7 @@ export async function getB2BLeads(filters?: {
 
   if (filters?.cityId) q = q.eq('city_id', filters.cityId)
   if (filters?.stage) q = q.eq('pipeline_stage', filters.stage)
+  if (filters?.assignedTo) q = q.eq('assigned_to', filters.assignedTo)
   if (filters?.search) {
     q = q.or(`venue_name.ilike.%${filters.search}%,owner_name.ilike.%${filters.search}%`)
   }
@@ -100,6 +102,7 @@ export async function getB2CLeads(filters?: {
   cityId?: string
   stage?: string
   search?: string
+  assignedTo?: string
 }): Promise<Record<string, any>[]> {
   const supabase = createClient()
   let q = supabase
@@ -109,6 +112,7 @@ export async function getB2CLeads(filters?: {
 
   if (filters?.cityId) q = q.eq('city_id', filters.cityId)
   if (filters?.stage) q = q.eq('pipeline_stage', filters.stage)
+  if (filters?.assignedTo) q = q.eq('assigned_to', filters.assignedTo)
   if (filters?.search) {
     q = q.or(`customer_name.ilike.%${filters.search}%,customer_phone.ilike.%${filters.search}%`)
   }
