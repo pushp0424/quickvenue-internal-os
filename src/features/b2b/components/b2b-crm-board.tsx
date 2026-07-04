@@ -4,9 +4,9 @@ import { useState } from 'react'
 import { useAuth } from '@/context/auth-provider'
 import { isCityScoped } from '@/lib/permissions'
 import { exportToCSV } from '@/lib/csv-export'
-import { useB2BLeads, useUpdateB2BLeadStage, useCities } from '@/features/b2b/hooks/use-b2b-leads'
+import { useB2BLeads, useCities } from '@/features/b2b/hooks/use-b2b-leads'
 import { useTeamMembers } from '@/features/team/hooks/use-team'
-import { B2BStageBadge, B2B_STAGES, STAGE_CONFIG, B2BStage } from '@/features/b2b/components/b2b-stage-badge'
+import { B2B_STAGES, STAGE_CONFIG, B2BStage } from '@/features/b2b/components/b2b-stage-badge'
 import { B2B_PRIORITIES, B2BPriority } from '@/features/b2b/components/b2b-priority-badge'
 import { B2BLeadCard, B2BLeadCardData } from '@/features/b2b/components/b2b-lead-card'
 import { B2BKanbanBoard } from '@/features/b2b/components/b2b-kanban-board'
@@ -43,7 +43,6 @@ export function B2BCrmBoard() {
 
   const { data: cities } = useCities()
   const { data: teamMembers } = useTeamMembers()
-  const updateStage = useUpdateB2BLeadStage()
 
   function handleExport() {
     if (!leads || leads.length === 0) return
@@ -178,26 +177,7 @@ export function B2BCrmBoard() {
         <Card>
           <CardContent className="p-0 divide-y">
             {(leads as B2BLeadCardData[]).map((lead) => (
-              <B2BLeadCard
-                key={lead.id}
-                lead={lead}
-                variant="row"
-                stageControl={
-                  <Select
-                    value={lead.pipeline_stage ?? undefined}
-                    onValueChange={(v) => updateStage.mutate({ id: lead.id, stage: v })}
-                  >
-                    <SelectTrigger className="h-7 w-[140px] border-0 shadow-none p-0 [&>svg]:hidden">
-                      <B2BStageBadge stage={lead.pipeline_stage} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {B2B_STAGES.map((s) => (
-                        <SelectItem key={s} value={s}>{STAGE_CONFIG[s].label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                }
-              />
+              <B2BLeadCard key={lead.id} lead={lead} variant="row" />
             ))}
           </CardContent>
         </Card>

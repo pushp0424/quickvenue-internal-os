@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { B2BPriorityBadge } from '@/features/b2b/components/b2b-priority-badge'
+import { B2BStageSelect } from '@/features/b2b/components/b2b-stage-select'
 import { Building2, Phone, MessageCircle, MapPin, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -42,13 +43,13 @@ function toWhatsAppLink(phone: string) {
 interface Props {
   lead: B2BLeadCardData
   variant?: 'row' | 'kanban'
-  stageControl?: React.ReactNode
 }
 
-// Note: quick actions and stage control are real interactive elements (anchors,
-// selects) — they must stay as siblings of the Link, never nested inside it,
-// or the outer navigation fires alongside the inner click (invalid nested <a>).
-export function B2BLeadCard({ lead, variant = 'row', stageControl }: Props) {
+// Note: quick actions and the stage select are real interactive elements
+// (anchors, a select trigger) — they must stay as siblings of the Link,
+// never nested inside it, or the outer navigation fires alongside the
+// inner click (invalid nested <a>).
+export function B2BLeadCard({ lead, variant = 'row' }: Props) {
   const overdue = isOverdue(lead.follow_up_date, lead.pipeline_stage)
   const days = daysInStage(lead.updated_at)
   const whatsappPhone = lead.owner_whatsapp || lead.owner_phone
@@ -114,7 +115,9 @@ export function B2BLeadCard({ lead, variant = 'row', stageControl }: Props) {
             Follow-up {formatDate(lead.follow_up_date)}
           </div>
         )}
-        {stageControl && <div className="pt-1">{stageControl}</div>}
+        <div className="pt-1">
+          <B2BStageSelect leadId={lead.id} stage={lead.pipeline_stage} size="sm" />
+        </div>
       </div>
     )
   }
@@ -162,7 +165,9 @@ export function B2BLeadCard({ lead, variant = 'row', stageControl }: Props) {
 
       {quickActions}
 
-      {stageControl && <div className="shrink-0">{stageControl}</div>}
+      <div className="shrink-0">
+        <B2BStageSelect leadId={lead.id} stage={lead.pipeline_stage} />
+      </div>
     </div>
   )
 }
