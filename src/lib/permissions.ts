@@ -12,6 +12,7 @@ export const ROUTE_ACCESS: Record<string, RoleName[]> = {
   '/b2b':       ['founder', 'admin', 'city_lead', 'venue_acquisition_executive', 'operations_head', 'bda'],
   '/b2c':       ['founder', 'admin', 'sales_executive', 'sales_head', 'bda', 'city_lead'],
   '/operations': ['founder', 'admin', 'operations_head', 'city_lead'],
+  '/finance':    ['founder', 'finance'],
 }
 
 export const PERMISSIONS = {
@@ -70,7 +71,7 @@ const ROLE_DASHBOARD_MAP: Record<RoleName, string> = {
   bda:                          '/crm',
   sales_head:                   '/b2c',
   operations_head:              '/b2b',
-  finance:                      '/sales',
+  finance:                      '/finance',
   marketing_head:               '/sales',
   team_lead:                    '/crm',
 }
