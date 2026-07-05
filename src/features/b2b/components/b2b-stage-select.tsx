@@ -27,7 +27,7 @@ export function B2BStageSelect({ leadId, stage, size = 'default' }: Props) {
       >
         <B2BStageBadge stage={stage} />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent position="popper">
         {B2B_STAGES.map((s) => (
           <SelectItem key={s} value={s}>{STAGE_CONFIG[s].label}</SelectItem>
         ))}

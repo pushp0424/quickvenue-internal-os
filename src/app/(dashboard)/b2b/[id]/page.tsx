@@ -4,17 +4,13 @@ import { use, useState } from 'react'
 import Link from 'next/link'
 import { useB2BLead, useUpdateB2BLead } from '@/features/b2b/hooks/use-b2b-lead-detail'
 import { useB2BLeadActivities, useLogB2BLeadActivity } from '@/features/b2b/hooks/use-b2b-lead-detail'
-import { useUpdateB2BLeadStage } from '@/features/b2b/hooks/use-b2b-leads'
-import { B2BStageBadge, B2B_STAGES, STAGE_CONFIG, B2BStage } from '@/features/b2b/components/b2b-stage-badge'
+import { B2BStageSelect } from '@/features/b2b/components/b2b-stage-select'
 import { ActivityTimeline } from '@/components/shared/activity-timeline'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Select, SelectContent, SelectItem, SelectTrigger,
-} from '@/components/ui/select'
 import { ArrowLeft, Building2, Phone, Mail, MapPin, IndianRupee, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -117,7 +113,6 @@ export default function B2BLeadDetailPage({ params }: { params: Promise<{ id: st
   const { id } = use(params)
   const { data: lead, isLoading } = useB2BLead(id)
   const { data: activities, isLoading: activitiesLoading } = useB2BLeadActivities(id)
-  const updateStage = useUpdateB2BLeadStage()
   const logActivity = useLogB2BLeadActivity()
 
   if (isLoading) {
@@ -174,19 +169,7 @@ export default function B2BLeadDetailPage({ params }: { params: Promise<{ id: st
           </div>
 
           <div className="flex flex-col items-start sm:items-end gap-2 shrink-0">
-            <Select
-              value={lead.pipeline_stage ?? undefined}
-              onValueChange={(v) => updateStage.mutate({ id, stage: v })}
-            >
-              <SelectTrigger className="w-[160px] border-0 shadow-none p-0 h-auto [&>svg]:hidden">
-                <B2BStageBadge stage={lead.pipeline_stage} />
-              </SelectTrigger>
-              <SelectContent>
-                {B2B_STAGES.map((s: B2BStage) => (
-                  <SelectItem key={s} value={s}>{STAGE_CONFIG[s].label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <B2BStageSelect leadId={id} stage={lead.pipeline_stage} />
             {lead.assignee?.full_name && (
               <p className="text-xs text-muted-foreground">Assigned to {lead.assignee.full_name}</p>
             )}

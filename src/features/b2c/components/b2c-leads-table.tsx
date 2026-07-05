@@ -4,8 +4,9 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/context/auth-provider'
 import { isCityScoped } from '@/lib/permissions'
-import { useB2CLeads, useUpdateB2CLeadStage } from '@/features/b2c/hooks/use-b2c-leads'
-import { B2CStageBadge, B2C_STAGES, STAGE_CONFIG, B2CStage } from '@/features/b2c/components/b2c-stage-badge'
+import { useB2CLeads } from '@/features/b2c/hooks/use-b2c-leads'
+import { B2C_STAGES, STAGE_CONFIG, B2CStage } from '@/features/b2c/components/b2c-stage-badge'
+import { B2CStageSelect } from '@/features/b2c/components/b2c-stage-select'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -51,8 +52,6 @@ export function B2CLeadsTable({ assignedToMe }: Props = {}) {
     stage: stageFilter !== 'all' ? stageFilter : undefined,
     search: search || undefined,
   }, { enabled: !assignedToMe || !!user })
-
-  const updateStage = useUpdateB2CLeadStage()
 
   return (
     <div className="space-y-4">
@@ -151,19 +150,7 @@ export function B2CLeadsTable({ assignedToMe }: Props = {}) {
                 </Link>
 
                 <div className="shrink-0">
-                  <Select
-                    value={lead.pipeline_stage}
-                    onValueChange={(v) => updateStage.mutate({ id: lead.id, stage: v })}
-                  >
-                    <SelectTrigger className="h-7 w-[150px] border-0 shadow-none p-0 [&>svg]:hidden">
-                      <B2CStageBadge stage={lead.pipeline_stage} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {B2C_STAGES.map((s) => (
-                        <SelectItem key={s} value={s}>{STAGE_CONFIG[s].label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <B2CStageSelect leadId={lead.id} stage={lead.pipeline_stage} />
                 </div>
               </div>
             ))
