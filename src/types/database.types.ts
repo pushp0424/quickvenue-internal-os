@@ -248,6 +248,92 @@ export type Database = {
           },
         ]
       }
+      employee_documents: {
+        Row: {
+          created_at: string
+          document_type: string
+          file_name: string
+          file_path: string
+          id: string
+          profile_id: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          document_type: string
+          file_name: string
+          file_path: string
+          id?: string
+          profile_id: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          id?: string
+          profile_id?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_documents_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employee_financial_details: {
+        Row: {
+          bank_account_number: string | null
+          bank_ifsc: string | null
+          bank_upi: string | null
+          profile_id: string
+          salary_allowances: number | null
+          salary_basic: number | null
+          salary_hra: number | null
+          updated_at: string
+        }
+        Insert: {
+          bank_account_number?: string | null
+          bank_ifsc?: string | null
+          bank_upi?: string | null
+          profile_id: string
+          salary_allowances?: number | null
+          salary_basic?: number | null
+          salary_hra?: number | null
+          updated_at?: string
+        }
+        Update: {
+          bank_account_number?: string | null
+          bank_ifsc?: string | null
+          bank_upi?: string | null
+          profile_id?: string
+          salary_allowances?: number | null
+          salary_basic?: number | null
+          salary_hra?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_financial_details_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       expenses: {
         Row: {
           amount: number
@@ -554,6 +640,45 @@ export type Database = {
           },
         ]
       }
+      performance_notes: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          note: string
+          profile_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          note: string
+          profile_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          note?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "performance_notes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "performance_notes_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           address: string | null
@@ -561,6 +686,7 @@ export type Database = {
           city: string | null
           city_id: string | null
           created_at: string
+          date_of_birth: string | null
           date_of_joining: string | null
           department_id: string | null
           designation: string | null
@@ -573,6 +699,7 @@ export type Database = {
           phone: string | null
           reporting_manager_id: string | null
           role_title: string | null
+          team: string | null
           updated_at: string
         }
         Insert: {
@@ -581,6 +708,7 @@ export type Database = {
           city?: string | null
           city_id?: string | null
           created_at?: string
+          date_of_birth?: string | null
           date_of_joining?: string | null
           department_id?: string | null
           designation?: string | null
@@ -593,6 +721,7 @@ export type Database = {
           phone?: string | null
           reporting_manager_id?: string | null
           role_title?: string | null
+          team?: string | null
           updated_at?: string
         }
         Update: {
@@ -601,6 +730,7 @@ export type Database = {
           city?: string | null
           city_id?: string | null
           created_at?: string
+          date_of_birth?: string | null
           date_of_joining?: string | null
           department_id?: string | null
           designation?: string | null
@@ -613,6 +743,7 @@ export type Database = {
           phone?: string | null
           reporting_manager_id?: string | null
           role_title?: string | null
+          team?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -659,6 +790,38 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      skills: {
+        Row: {
+          created_at: string
+          id: string
+          proficiency: string | null
+          profile_id: string
+          skill_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          proficiency?: string | null
+          profile_id: string
+          skill_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          proficiency?: string | null
+          profile_id?: string
+          skill_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skills_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       transactions: {
         Row: {

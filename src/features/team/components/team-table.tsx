@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useTeamMembers } from '@/features/team/hooks/use-team'
 import { MemberActions } from '@/features/team/components/member-actions'
 import { useAuth } from '@/context/auth-provider'
@@ -160,30 +161,31 @@ export function TeamTable() {
                 key={member.id}
                 className="flex items-center gap-4 px-6 py-4 border-b last:border-0 hover:bg-muted/40 transition-colors"
               >
-                {/* Avatar */}
-                <Avatar className="h-10 w-10 shrink-0">
-                  <AvatarFallback
-                    className={`text-xs font-bold ${member.is_active ? 'bg-[#0244C6] text-white' : 'bg-muted text-muted-foreground'}`}
-                  >
-                    {initials(member.full_name)}
-                  </AvatarFallback>
-                </Avatar>
+                {/* Avatar + name + email (links to profile) */}
+                <Link href={`/admin/team/${member.id}`} className="flex items-center gap-4 flex-1 min-w-0">
+                  <Avatar className="h-10 w-10 shrink-0">
+                    <AvatarFallback
+                      className={`text-xs font-bold ${member.is_active ? 'bg-[#0244C6] text-white' : 'bg-muted text-muted-foreground'}`}
+                    >
+                      {initials(member.full_name)}
+                    </AvatarFallback>
+                  </Avatar>
 
-                {/* Name + email */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold truncate">{member.full_name}</p>
-                    {!member.is_active && (
-                      <Badge variant="outline" className="text-[10px] text-red-500 border-red-200 shrink-0">
-                        Inactive
-                      </Badge>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold truncate hover:underline">{member.full_name}</p>
+                      {!member.is_active && (
+                        <Badge variant="outline" className="text-[10px] text-red-500 border-red-200 shrink-0">
+                          Inactive
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground truncate">{member.email}</p>
+                    {member.designation && (
+                      <p className="text-xs text-muted-foreground truncate">{member.designation}</p>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground truncate">{member.email}</p>
-                  {member.designation && (
-                    <p className="text-xs text-muted-foreground truncate">{member.designation}</p>
-                  )}
-                </div>
+                </Link>
 
                 {/* Roles */}
                 <div className="hidden sm:flex gap-1 flex-wrap justify-end max-w-[180px] shrink-0">
