@@ -19,6 +19,7 @@ interface Props {
 interface Details {
   salary_basic: number | null
   salary_hra: number | null
+  salary_da: number | null
   salary_allowances: number | null
   bank_account_number: string | null
   bank_ifsc: string | null
@@ -57,6 +58,7 @@ function FinancialDetailsFields({
   const [form, setForm] = useState({
     salary_basic: details?.salary_basic != null ? String(details.salary_basic) : '',
     salary_hra: details?.salary_hra != null ? String(details.salary_hra) : '',
+    salary_da: details?.salary_da != null ? String(details.salary_da) : '',
     salary_allowances: details?.salary_allowances != null ? String(details.salary_allowances) : '',
     bank_account_number: details?.bank_account_number ?? '',
     bank_ifsc: details?.bank_ifsc ?? '',
@@ -75,6 +77,7 @@ function FinancialDetailsFields({
         input: {
           salary_basic: form.salary_basic ? Number(form.salary_basic) : null,
           salary_hra: form.salary_hra ? Number(form.salary_hra) : null,
+          salary_da: form.salary_da ? Number(form.salary_da) : null,
           salary_allowances: form.salary_allowances ? Number(form.salary_allowances) : null,
           bank_account_number: form.bank_account_number || null,
           bank_ifsc: form.bank_ifsc || null,
@@ -99,7 +102,7 @@ function FinancialDetailsFields({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <p className="text-xs font-medium text-muted-foreground mb-2">Salary (₹/month)</p>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-4 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="salary_basic">Basic</Label>
                 <Input id="salary_basic" type="number" min="0" value={form.salary_basic} onChange={(e) => set('salary_basic', e.target.value)} disabled={!canEditSalary} />
@@ -107,6 +110,10 @@ function FinancialDetailsFields({
               <div className="space-y-1.5">
                 <Label htmlFor="salary_hra">HRA</Label>
                 <Input id="salary_hra" type="number" min="0" value={form.salary_hra} onChange={(e) => set('salary_hra', e.target.value)} disabled={!canEditSalary} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="salary_da">DA</Label>
+                <Input id="salary_da" type="number" min="0" value={form.salary_da} onChange={(e) => set('salary_da', e.target.value)} disabled={!canEditSalary} />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="salary_allowances">Allowances</Label>

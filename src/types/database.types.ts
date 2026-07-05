@@ -367,6 +367,7 @@ export type Database = {
           profile_id: string
           salary_allowances: number | null
           salary_basic: number | null
+          salary_da: number | null
           salary_hra: number | null
           updated_at: string
         }
@@ -377,6 +378,7 @@ export type Database = {
           profile_id: string
           salary_allowances?: number | null
           salary_basic?: number | null
+          salary_da?: number | null
           salary_hra?: number | null
           updated_at?: string
         }
@@ -387,6 +389,7 @@ export type Database = {
           profile_id?: string
           salary_allowances?: number | null
           salary_basic?: number | null
+          salary_da?: number | null
           salary_hra?: number | null
           updated_at?: string
         }
@@ -813,6 +816,41 @@ export type Database = {
           },
         ]
       }
+      payroll: {
+        Row: {
+          created_at: string
+          generated_at: string | null
+          generated_by: string | null
+          id: string
+          month: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          generated_at?: string | null
+          generated_by?: string | null
+          id?: string
+          month: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          generated_at?: string | null
+          generated_by?: string | null
+          id?: string
+          month?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_generated_by_fkey"
+            columns: ["generated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       performance_notes: {
         Row: {
           created_at: string
@@ -963,6 +1001,78 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      salary_slips: {
+        Row: {
+          allowances: number
+          basic: number
+          commission: number
+          created_at: string
+          da: number
+          deductions: number
+          gross_pay: number
+          hra: number
+          id: string
+          lop_amount: number
+          lop_days: number
+          net_pay: number
+          paid_at: string | null
+          payment_status: string
+          payroll_id: string
+          profile_id: string
+        }
+        Insert: {
+          allowances?: number
+          basic?: number
+          commission?: number
+          created_at?: string
+          da?: number
+          deductions?: number
+          gross_pay?: number
+          hra?: number
+          id?: string
+          lop_amount?: number
+          lop_days?: number
+          net_pay?: number
+          paid_at?: string | null
+          payment_status?: string
+          payroll_id: string
+          profile_id: string
+        }
+        Update: {
+          allowances?: number
+          basic?: number
+          commission?: number
+          created_at?: string
+          da?: number
+          deductions?: number
+          gross_pay?: number
+          hra?: number
+          id?: string
+          lop_amount?: number
+          lop_days?: number
+          net_pay?: number
+          paid_at?: string | null
+          payment_status?: string
+          payroll_id?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "salary_slips_payroll_id_fkey"
+            columns: ["payroll_id"]
+            isOneToOne: false
+            referencedRelation: "payroll"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salary_slips_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       skills: {
         Row: {
