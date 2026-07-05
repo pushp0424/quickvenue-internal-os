@@ -1,12 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { useAuth } from '@/context/auth-provider'
 import { isCityScoped } from '@/lib/permissions'
 import { useB2CLeads } from '@/features/b2c/hooks/use-b2c-leads'
 import { B2C_STAGES, STAGE_CONFIG, B2CStage } from '@/features/b2c/components/b2c-stage-badge'
-import { B2CStageSelect } from '@/features/b2c/components/b2c-stage-select'
+import { B2CLeadCard, B2CLeadCardData } from '@/features/b2c/components/b2c-lead-card'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -14,25 +13,7 @@ import {
   Select, SelectContent, SelectItem,
   SelectTrigger, SelectValue,
 } from '@/components/ui/select'
-import { Search, Users, Phone, Calendar } from 'lucide-react'
-
-interface B2CLeadRow {
-  id: string
-  customer_name: string
-  customer_phone: string
-  event_type: string | null
-  event_date: string | null
-  guest_count: number | null
-  budget_min: number | null
-  budget_max: number | null
-  booking_amount: number | null
-  pipeline_stage: string
-}
-
-function formatDate(dateStr: string | null) {
-  if (!dateStr) return null
-  return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
-}
+import { Search, Users } from 'lucide-react'
 
 interface Props {
   assignedToMe?: boolean
@@ -109,51 +90,11 @@ export function B2CLeadsTable({ assignedToMe }: Props = {}) {
               </p>
             </div>
           ) : (
-            (leads as B2CLeadRow[]).map((lead) => (
-              <div
-                key={lead.id}
-                className="flex items-center gap-4 px-6 py-4 border-b last:border-0 hover:bg-muted/40 transition-colors"
-              >
-                <Link href={`/b2c/${lead.id}`} className="flex items-center gap-4 flex-1 min-w-0">
-                  <div className="h-9 w-9 rounded-lg bg-[#0244C6]/10 flex items-center justify-center shrink-0">
-                    <Users className="h-4 w-4 text-[#0244C6]" />
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate">{lead.customer_name}</p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {lead.event_type && `${String(lead.event_type).replace(/_/g, ' ')} · `}
-                      {lead.guest_count && `${lead.guest_count} guests · `}
-                      {lead.budget_min && lead.budget_max
-                        ? `₹${lead.budget_min.toLocaleString('en-IN')}-${lead.budget_max.toLocaleString('en-IN')}`
-                        : ''}
-                    </p>
-                  </div>
-
-                  <div className="hidden md:flex items-center gap-1.5 shrink-0 text-xs text-muted-foreground">
-                    <Phone className="h-3.5 w-3.5" />
-                    {lead.customer_phone}
-                  </div>
-
-                  {lead.event_date && (
-                    <div className="hidden lg:flex items-center gap-1.5 shrink-0 text-xs text-muted-foreground">
-                      <Calendar className="h-3.5 w-3.5" />
-                      {formatDate(lead.event_date)}
-                    </div>
-                  )}
-
-                  {lead.booking_amount != null && lead.booking_amount > 0 && (
-                    <div className="hidden sm:block shrink-0 text-xs font-semibold text-emerald-600">
-                      ₹{lead.booking_amount.toLocaleString('en-IN')}
-                    </div>
-                  )}
-                </Link>
-
-                <div className="shrink-0">
-                  <B2CStageSelect leadId={lead.id} stage={lead.pipeline_stage} />
-                </div>
-              </div>
-            ))
+            <div className="divide-y">
+              {(leads as B2CLeadCardData[]).map((lead) => (
+                <B2CLeadCard key={lead.id} lead={lead} variant="row" />
+              ))}
+            </div>
           )}
         </CardContent>
       </Card>

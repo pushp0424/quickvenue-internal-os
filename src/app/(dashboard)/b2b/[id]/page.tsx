@@ -10,6 +10,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ArrowLeft, Building2, Phone, Mail, MapPin, IndianRupee, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -18,6 +19,7 @@ interface B2BLeadFields {
   next_action: string | null
   deal_value: number | null
   visit_date: string | null
+  visit_done: boolean | null
   notes: string | null
 }
 
@@ -27,6 +29,7 @@ function B2BLeadDetailsForm({ lead, id }: { lead: B2BLeadFields; id: string }) {
     next_action: lead.next_action ?? '',
     deal_value: lead.deal_value != null ? String(lead.deal_value) : '',
     visit_date: lead.visit_date ?? '',
+    visit_done: lead.visit_done ?? false,
     notes: lead.notes ?? '',
   })
 
@@ -39,6 +42,7 @@ function B2BLeadDetailsForm({ lead, id }: { lead: B2BLeadFields; id: string }) {
           next_action: form.next_action || null,
           deal_value: form.deal_value ? Number(form.deal_value) : null,
           visit_date: form.visit_date || null,
+          visit_done: form.visit_done,
           notes: form.notes || null,
         },
       })
@@ -87,6 +91,14 @@ function B2BLeadDetailsForm({ lead, id }: { lead: B2BLeadFields; id: string }) {
               />
             </div>
           </div>
+
+          <label className="flex items-center gap-2 text-sm cursor-pointer w-fit">
+            <Checkbox
+              checked={form.visit_done}
+              onCheckedChange={(checked) => setForm((f) => ({ ...f, visit_done: checked === true }))}
+            />
+            Site visit done
+          </label>
 
           <div className="space-y-1.5">
             <Label htmlFor="notes">Notes</Label>
