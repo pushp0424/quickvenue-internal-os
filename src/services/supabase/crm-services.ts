@@ -150,6 +150,7 @@ export async function logB2BLeadActivity(input: {
   leadId: string
   activityType: string
   content: string
+  occurredAt?: string
 }) {
   const supabase = createClient()
   const session = await getSession()
@@ -160,7 +161,14 @@ export async function logB2BLeadActivity(input: {
       performed_by: session?.user.id ?? null,
       activity_type: input.activityType,
       content: input.content,
+      ...(input.occurredAt ? { created_at: input.occurredAt } : {}),
     } as any)
+  if (error) throw error
+}
+
+export async function deleteB2BLead(id: string) {
+  const supabase = createClient()
+  const { error } = await supabase.from('leads' as any).delete().eq('id', id)
   if (error) throw error
 }
 
@@ -288,6 +296,7 @@ export async function logB2CLeadActivity(input: {
   customerLeadId: string
   activityType: string
   content: string
+  occurredAt?: string
 }) {
   const supabase = createClient()
   const session = await getSession()
@@ -298,6 +307,13 @@ export async function logB2CLeadActivity(input: {
       performed_by: session?.user.id ?? null,
       activity_type: input.activityType,
       content: input.content,
+      ...(input.occurredAt ? { created_at: input.occurredAt } : {}),
     } as any)
+  if (error) throw error
+}
+
+export async function deleteB2CLead(id: string) {
+  const supabase = createClient()
+  const { error } = await supabase.from('customer_leads' as any).delete().eq('id', id)
   if (error) throw error
 }

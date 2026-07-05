@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -45,7 +47,7 @@ export interface Activity {
 interface Props {
   activities: Activity[] | undefined
   isLoading: boolean
-  onLog: (input: { activityType: ActivityType; content: string }) => Promise<void>
+  onLog: (input: { activityType: ActivityType; content: string; occurredAt?: string }) => Promise<void>
   isLogging: boolean
 }
 
@@ -61,14 +63,23 @@ function timeAgo(dateStr: string | null) {
   return 'Just now'
 }
 
+function nowForInput() {
+  const d = new Date()
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset())
+  return d.toISOString().slice(0, 16)
+}
+
 export function ActivityTimeline({ activities, isLoading, onLog, isLogging }: Props) {
   const [activityType, setActivityType] = useState<ActivityType>('note')
   const [content, setContent] = useState('')
+  const [occurredAt, setOccurredAt] = useState(nowForInput)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!content.trim()) return
-    await onLog({ activityType, content: content.trim() })
+    const occurredAtIso = occurredAt ? new Date(occurredAt).toISOString() : undefined
+    await onLog({ activityType, content: content.trim(), occurredAt: occurredAtIso })
+    setOccurredAt(nowForInput())
     setContent('')
   }
 
@@ -95,7 +106,17 @@ export function ActivityTimeline({ activities, isLoading, onLog, isLogging }: Pr
                 className="flex-1 min-h-9"
               />
             </div>
-            <div className="flex justify-end">
+            <div className="flex items-center justify-between gap-2">
+              <div className="space-y-1">
+                <Label htmlFor="occurred-at" className="text-xs text-muted-foreground">When</Label>
+                <Input
+                  id="occurred-at"
+                  type="datetime-local"
+                  value={occurredAt}
+                  onChange={(e) => setOccurredAt(e.target.value)}
+                  className="h-8 text-xs w-[200px]"
+                />
+              </div>
               <Button type="submit" size="sm" disabled={isLogging || !content.trim()} className="bg-[#0244C6] hover:bg-[#012775]">
                 {isLogging ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Log Activity'}
               </Button>

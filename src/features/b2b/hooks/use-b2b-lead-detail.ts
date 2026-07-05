@@ -3,7 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   getB2BLeadById, updateB2BLead,
-  getB2BLeadActivities, logB2BLeadActivity,
+  getB2BLeadActivities, logB2BLeadActivity, deleteB2BLead,
 } from '@/services/supabase/crm-services'
 
 export function useB2BLead(id: string) {
@@ -41,6 +41,17 @@ export function useLogB2BLeadActivity() {
     mutationFn: logB2BLeadActivity,
     onSuccess: (_, vars) => {
       qc.invalidateQueries({ queryKey: ['b2b-lead-activities', vars.leadId] })
+    },
+  })
+}
+
+export function useDeleteB2BLead() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: deleteB2BLead,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['b2b-leads'] })
+      qc.invalidateQueries({ queryKey: ['b2b-stats'] })
     },
   })
 }

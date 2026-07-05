@@ -23,6 +23,7 @@ export const PERMISSIONS = {
   ADD_LEADS:           ['founder', 'admin', 'sales_executive', 'bda', 'city_lead', 'sales_head'] as RoleName[],
   ADD_VENUES:          ['founder', 'admin', 'city_lead', 'venue_acquisition_executive', 'bda', 'operations_head'] as RoleName[],
   VIEW_FINANCE:        ['founder', 'finance'] as RoleName[],
+  DELETE_LEADS:        ['founder', 'admin'] as RoleName[],
 } as const
 
 export type PermissionKey = keyof typeof PERMISSIONS

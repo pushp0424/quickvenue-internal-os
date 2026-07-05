@@ -51,9 +51,10 @@ export function useUpdateB2CLeadStage() {
   return useMutation({
     mutationFn: ({ id, stage, extra }: { id: string; stage: string; extra?: Record<string, unknown> }) =>
       updateB2CLeadStage(id, stage, extra),
-    onSuccess: () => {
+    onSuccess: (_, vars) => {
       qc.invalidateQueries({ queryKey: ['b2c-leads'] })
       qc.invalidateQueries({ queryKey: ['b2c-stats'] })
+      qc.invalidateQueries({ queryKey: ['b2c-lead', vars.id] })
     },
   })
 }

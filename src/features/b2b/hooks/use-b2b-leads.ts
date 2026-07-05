@@ -53,9 +53,10 @@ export function useUpdateB2BLeadStage() {
   return useMutation({
     mutationFn: ({ id, stage }: { id: string; stage: string }) =>
       updateB2BLeadStage(id, stage),
-    onSuccess: () => {
+    onSuccess: (_, vars) => {
       qc.invalidateQueries({ queryKey: ['b2b-leads'] })
       qc.invalidateQueries({ queryKey: ['b2b-stats'] })
+      qc.invalidateQueries({ queryKey: ['b2b-lead', vars.id] })
     },
   })
 }
