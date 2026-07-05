@@ -706,6 +706,113 @@ export type Database = {
           },
         ]
       }
+      leave_types: {
+        Row: {
+          annual_days: number | null
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+        }
+        Insert: {
+          annual_days?: number | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+        }
+        Update: {
+          annual_days?: number | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+        }
+        Relationships: []
+      }
+      leaves: {
+        Row: {
+          created_at: string
+          days: number
+          end_date: string
+          hr_decided_at: string | null
+          hr_decided_by: string | null
+          id: string
+          leave_type_id: string
+          profile_id: string
+          reason: string | null
+          rejection_reason: string | null
+          start_date: string
+          status: string
+          team_lead_decided_at: string | null
+          team_lead_decided_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          days: number
+          end_date: string
+          hr_decided_at?: string | null
+          hr_decided_by?: string | null
+          id?: string
+          leave_type_id: string
+          profile_id: string
+          reason?: string | null
+          rejection_reason?: string | null
+          start_date: string
+          status?: string
+          team_lead_decided_at?: string | null
+          team_lead_decided_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          days?: number
+          end_date?: string
+          hr_decided_at?: string | null
+          hr_decided_by?: string | null
+          id?: string
+          leave_type_id?: string
+          profile_id?: string
+          reason?: string | null
+          rejection_reason?: string | null
+          start_date?: string
+          status?: string
+          team_lead_decided_at?: string | null
+          team_lead_decided_by?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leaves_hr_decided_by_fkey"
+            columns: ["hr_decided_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leaves_leave_type_id_fkey"
+            columns: ["leave_type_id"]
+            isOneToOne: false
+            referencedRelation: "leave_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leaves_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leaves_team_lead_decided_by_fkey"
+            columns: ["team_lead_decided_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       performance_notes: {
         Row: {
           created_at: string

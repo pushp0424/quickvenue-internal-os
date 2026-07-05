@@ -24,6 +24,7 @@ export interface UserProfile {
   city_id: string | null
   designation: string | null
   team: string | null
+  reporting_manager_id: string | null
   is_active: boolean
   created_at: string
   updated_at: string

@@ -1,6 +1,7 @@
 import { Sidebar } from '@/components/layout/sidebar'
 import { Navbar } from '@/components/layout/navbar'
 import { Breadcrumb } from '@/components/shared/breadcrumb'
+import { Toaster } from 'sonner'
 
 export default function DashboardLayout({
   children,
@@ -17,6 +18,7 @@ export default function DashboardLayout({
           {children}
         </main>
       </div>
+      <div className="print:hidden"><Toaster position="top-right" richColors /></div>
     </div>
   )
 }

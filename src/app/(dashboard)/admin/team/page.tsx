@@ -7,7 +7,6 @@ import { StatCard } from '@/components/shared/stat-card'
 import { SectionHeader } from '@/components/shared/section-header'
 import { useTeamStats } from '@/features/dashboard/hooks/use-dashboard-stats'
 import { Users, UserCheck, UserX, Shield } from 'lucide-react'
-import { Toaster } from 'sonner'
 
 export default function TeamManagementPage() {
   const { data: stats, isLoading: statsLoading } = useTeamStats()
@@ -20,8 +19,6 @@ export default function TeamManagementPage() {
 
   return (
     <div className="space-y-8 max-w-[1400px]">
-      <Toaster position="top-right" richColors />
-
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

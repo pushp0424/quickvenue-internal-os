@@ -14,7 +14,6 @@ import { SectionHeader } from '@/components/shared/section-header'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { User, Lock, Bell, Palette, Shield } from 'lucide-react'
 import { toast } from 'sonner'
-import { Toaster } from 'sonner'
 
 function initials(name: string) {
   return name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
@@ -77,8 +76,6 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-8 max-w-3xl">
-      <Toaster position="top-right" richColors />
-
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
         <p className="text-muted-foreground text-sm mt-1">
