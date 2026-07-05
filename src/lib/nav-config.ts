@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Users, MapPin,
   TrendingUp, Code2, UserCog, Settings,
-  Building2, ShoppingBag, ClipboardList, Wrench, Wallet, CalendarCheck, CalendarDays, Banknote,
+  Building2, ShoppingBag, ClipboardList, Wrench, Wallet, CalendarCheck, CalendarDays, Banknote, ListTodo,
 } from 'lucide-react'
 import { RoleName } from '@/types/auth.types'
 
@@ -35,6 +35,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Attendance',       href: '/attendance', icon: CalendarCheck,   roles: ALL_ROLES },
   { label: 'Leave',            href: '/leaves',     icon: CalendarDays,    roles: ALL_ROLES },
   { label: 'Payroll',          href: '/payroll',    icon: Banknote,        roles: ALL_ROLES },
+  { label: 'Tasks',            href: '/tasks',      icon: ListTodo,        roles: ALL_ROLES },
   { label: 'Settings',         href: '/settings',   icon: Settings,        roles: ALL_ROLES },
 ]
 
