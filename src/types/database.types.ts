@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      attendance: {
+        Row: {
+          check_in_at: string | null
+          check_in_lat: number | null
+          check_in_lng: number | null
+          check_out_at: string | null
+          check_out_lat: number | null
+          check_out_lng: number | null
+          city_id: string | null
+          created_at: string
+          date: string
+          id: string
+          is_late: boolean
+          profile_id: string
+          updated_at: string
+          work_mode: string
+        }
+        Insert: {
+          check_in_at?: string | null
+          check_in_lat?: number | null
+          check_in_lng?: number | null
+          check_out_at?: string | null
+          check_out_lat?: number | null
+          check_out_lng?: number | null
+          city_id?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          is_late?: boolean
+          profile_id: string
+          updated_at?: string
+          work_mode?: string
+        }
+        Update: {
+          check_in_at?: string | null
+          check_in_lat?: number | null
+          check_in_lng?: number | null
+          check_out_at?: string | null
+          check_out_lat?: number | null
+          check_out_lng?: number | null
+          city_id?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          is_late?: boolean
+          profile_id?: string
+          updated_at?: string
+          work_mode?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cities: {
         Row: {
           city_lead_id: string | null

@@ -4,6 +4,7 @@ import { useAuth } from '@/context/auth-provider'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { LogoutButton } from '@/components/shared/logout-button'
 import { MobileSidebar } from '@/components/layout/mobile-sidebar'
+import { CheckInButton } from '@/features/attendance/components/check-in-button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -26,6 +27,7 @@ export function Navbar() {
       </div>
 
       <div className="flex items-center gap-2">
+        <CheckInButton />
         <ThemeToggle />
         {loading ? (
           <Skeleton className="h-9 w-32" />

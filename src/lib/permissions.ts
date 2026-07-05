@@ -13,6 +13,7 @@ export const ROUTE_ACCESS: Record<string, RoleName[]> = {
   '/b2c':       ['founder', 'admin', 'sales_executive', 'sales_head', 'bda', 'city_lead'],
   '/operations': ['founder', 'admin', 'operations_head', 'city_lead'],
   '/finance':    ['founder', 'finance'],
+  '/attendance': ['founder', 'admin', 'city_lead', 'sales_executive', 'operations_executive', 'venue_acquisition_executive', 'developer', 'hr', 'bda', 'sales_head', 'operations_head', 'finance', 'marketing_head', 'team_lead'],
 }
 
 export const PERMISSIONS = {

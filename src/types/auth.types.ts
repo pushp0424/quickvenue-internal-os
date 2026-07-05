@@ -23,6 +23,7 @@ export interface UserProfile {
   city: string | null
   city_id: string | null
   designation: string | null
+  team: string | null
   is_active: boolean
   created_at: string
   updated_at: string
