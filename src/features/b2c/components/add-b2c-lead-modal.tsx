@@ -4,10 +4,12 @@ import { useState } from 'react'
 import { useAuth } from '@/context/auth-provider'
 import { useCreateB2CLead } from '@/features/b2c/hooks/use-b2c-leads'
 import { useCities } from '@/features/b2b/hooks/use-b2b-leads'
+import { useTeamMembers } from '@/features/team/hooks/use-team'
 import { isCityScoped } from '@/lib/permissions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Dialog, DialogContent, DialogDescription,
   DialogHeader, DialogTitle, DialogTrigger,
@@ -24,29 +26,39 @@ const EVENT_TYPES = [
   'anniversary', 'baby_shower', 'conference', 'other',
 ]
 
+const LEAD_SOURCES = ['instagram', 'google', 'referral', 'whatsapp', 'walk_in', 'other']
+
+const initialFormState = (defaultCityId: string) => ({
+  customerName: '',
+  customerPhone: '',
+  customerWhatsapp: '',
+  customerEmail: '',
+  eventType: '',
+  eventDate: '',
+  guestCount: '',
+  budgetMin: '',
+  budgetMax: '',
+  cityId: defaultCityId,
+  preferredArea: '',
+  source: '',
+  followUpDate: '',
+  assignedTo: '',
+  specialRequirements: '',
+  notes: '',
+})
+
 export function AddB2CLeadModal() {
   const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const { data: cities } = useCities()
+  const { data: teamMembers } = useTeamMembers()
   const createLead = useCreateB2CLead()
 
   const scoped = isCityScoped(user?.roles ?? [])
   const defaultCityId = user?.profile.city_id ?? ''
 
-  const [form, setForm] = useState({
-    customerName: '',
-    customerPhone: '',
-    customerEmail: '',
-    eventType: '',
-    eventDate: '',
-    guestCount: '',
-    budgetMin: '',
-    budgetMax: '',
-    cityId: defaultCityId,
-    preferredArea: '',
-    notes: '',
-  })
+  const [form, setForm] = useState(initialFormState(defaultCityId))
 
   function updateField(key: string, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -64,6 +76,7 @@ export function AddB2CLeadModal() {
       await createLead.mutateAsync({
         customer_name: form.customerName,
         customer_phone: form.customerPhone,
+        customer_whatsapp: form.customerWhatsapp || undefined,
         customer_email: form.customerEmail || undefined,
         event_type: form.eventType || undefined,
         event_date: form.eventDate || undefined,
@@ -72,17 +85,17 @@ export function AddB2CLeadModal() {
         budget_max: form.budgetMax ? Number(form.budgetMax) : undefined,
         city_id: (scoped ? defaultCityId : form.cityId) || undefined,
         preferred_area: form.preferredArea || undefined,
+        source: form.source || undefined,
+        follow_up_date: form.followUpDate || undefined,
+        assigned_to: form.assignedTo || undefined,
+        special_requirements: form.specialRequirements || undefined,
         notes: form.notes || undefined,
         pipeline_stage: 'new_lead',
       })
 
       toast.success(`${form.customerName} added to B2C pipeline`)
       setOpen(false)
-      setForm({
-        customerName: '', customerPhone: '', customerEmail: '', eventType: '',
-        eventDate: '', guestCount: '', budgetMin: '', budgetMax: '',
-        cityId: defaultCityId, preferredArea: '', notes: '',
-      })
+      setForm(initialFormState(defaultCityId))
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to add lead')
     } finally {
@@ -99,7 +112,7 @@ export function AddB2CLeadModal() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[520px]">
+      <DialogContent className="sm:max-w-[560px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add B2C Lead</DialogTitle>
           <DialogDescription>
@@ -131,15 +144,26 @@ export function AddB2CLeadModal() {
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="customerEmail">Email</Label>
-            <Input
-              id="customerEmail"
-              type="email"
-              placeholder="priya@email.com"
-              value={form.customerEmail}
-              onChange={(e) => updateField('customerEmail', e.target.value)}
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="customerWhatsapp">WhatsApp</Label>
+              <Input
+                id="customerWhatsapp"
+                placeholder="9876543210"
+                value={form.customerWhatsapp}
+                onChange={(e) => updateField('customerWhatsapp', e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="customerEmail">Email</Label>
+              <Input
+                id="customerEmail"
+                type="email"
+                placeholder="priya@email.com"
+                value={form.customerEmail}
+                onChange={(e) => updateField('customerEmail', e.target.value)}
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -231,6 +255,56 @@ export function AddB2CLeadModal() {
                 onChange={(e) => updateField('preferredArea', e.target.value)}
               />
             </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label>Source</Label>
+              <Select value={form.source} onValueChange={(v) => updateField('source', v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select source" />
+                </SelectTrigger>
+                <SelectContent>
+                  {LEAD_SOURCES.map((s) => (
+                    <SelectItem key={s} value={s}>{s.replace(/_/g, ' ')}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="followUpDate">Follow-up Date</Label>
+              <Input
+                id="followUpDate"
+                type="date"
+                value={form.followUpDate}
+                onChange={(e) => updateField('followUpDate', e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Assigned To</Label>
+            <Select value={form.assignedTo} onValueChange={(v) => updateField('assignedTo', v)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Me" />
+              </SelectTrigger>
+              <SelectContent>
+                {(teamMembers ?? []).map((m) => (
+                  <SelectItem key={m.id} value={m.id}>{m.full_name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="specialRequirements">Special Requirements</Label>
+            <Textarea
+              id="specialRequirements"
+              placeholder="Dietary restrictions, decor preferences..."
+              value={form.specialRequirements}
+              onChange={(e) => updateField('specialRequirements', e.target.value)}
+              className="min-h-16"
+            />
           </div>
 
           <div className="space-y-1.5">

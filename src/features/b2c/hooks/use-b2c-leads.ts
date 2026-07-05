@@ -2,8 +2,16 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  getB2CLeads, getB2CStats, createB2CLead, updateB2CLeadStage,
+  getB2CLeads, getB2CStats, createB2CLead, updateB2CLeadStage, getVenuesForMatch,
 } from '@/services/supabase/crm-services'
+
+export function useVenuesForMatch() {
+  return useQuery({
+    queryKey: ['venues-for-match'],
+    queryFn: getVenuesForMatch,
+    staleTime: 5 * 60 * 1000,
+  })
+}
 
 export function useB2CLeads(filters?: {
   cityId?: string

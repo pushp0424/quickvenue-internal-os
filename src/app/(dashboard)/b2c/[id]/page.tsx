@@ -1,8 +1,9 @@
 'use client'
 
-import { use, useState } from 'react'
+import { use, useState, useMemo } from 'react'
 import Link from 'next/link'
 import { useB2CLead, useUpdateB2CLead, useB2CLeadActivities, useLogB2CLeadActivity } from '@/features/b2c/hooks/use-b2c-lead-detail'
+import { useVenuesForMatch } from '@/features/b2c/hooks/use-b2c-leads'
 import { B2CStageSelect } from '@/features/b2c/components/b2c-stage-select'
 import { ActivityTimeline } from '@/components/shared/activity-timeline'
 import { Card, CardContent } from '@/components/ui/card'
@@ -10,24 +11,44 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Select, SelectContent, SelectItem,
+  SelectTrigger, SelectValue,
+} from '@/components/ui/select'
 import { ArrowLeft, Users, Phone, Mail, Calendar, IndianRupee, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface B2CLeadFields {
   next_action: string | null
   booking_amount: number | null
+  commission_earned: number | null
+  matched_venue_id: string | null
   event_date: string | null
   notes: string | null
 }
 
 function B2CLeadDetailsForm({ lead, id }: { lead: B2CLeadFields; id: string }) {
   const updateLead = useUpdateB2CLead()
+  const { data: venues } = useVenuesForMatch()
+  const derivedPercent = lead.booking_amount && lead.commission_earned
+    ? String(Math.round((lead.commission_earned / lead.booking_amount) * 100))
+    : '10'
+
   const [form, setForm] = useState({
     next_action: lead.next_action ?? '',
     booking_amount: lead.booking_amount != null ? String(lead.booking_amount) : '',
+    commission_percent: derivedPercent,
+    matched_venue_id: lead.matched_venue_id ?? '',
     event_date: lead.event_date ?? '',
     notes: lead.notes ?? '',
   })
+
+  const commissionEarned = useMemo(() => {
+    const amount = Number(form.booking_amount)
+    const percent = Number(form.commission_percent)
+    if (!amount || !percent) return 0
+    return Math.round(amount * (percent / 100))
+  }, [form.booking_amount, form.commission_percent])
 
   async function handleSaveDetails(e: React.FormEvent) {
     e.preventDefault()
@@ -37,6 +58,8 @@ function B2CLeadDetailsForm({ lead, id }: { lead: B2CLeadFields; id: string }) {
         input: {
           next_action: form.next_action || null,
           booking_amount: form.booking_amount ? Number(form.booking_amount) : null,
+          commission_earned: form.booking_amount ? commissionEarned : null,
+          matched_venue_id: form.matched_venue_id || null,
           event_date: form.event_date || null,
           notes: form.notes || null,
         },
@@ -62,6 +85,23 @@ function B2CLeadDetailsForm({ lead, id }: { lead: B2CLeadFields; id: string }) {
             />
           </div>
 
+          <div className="space-y-1.5">
+            <Label>Matched Venue</Label>
+            <Select
+              value={form.matched_venue_id}
+              onValueChange={(v) => setForm((f) => ({ ...f, matched_venue_id: v }))}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="No venue matched yet" />
+              </SelectTrigger>
+              <SelectContent position="popper">
+                {(venues ?? []).map((v) => (
+                  <SelectItem key={v.id} value={v.id}>{v.name} · {v.city}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="booking_amount">Booking Amount</Label>
@@ -84,6 +124,24 @@ function B2CLeadDetailsForm({ lead, id }: { lead: B2CLeadFields; id: string }) {
                 value={form.event_date}
                 onChange={(e) => setForm((f) => ({ ...f, event_date: e.target.value }))}
               />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="commission_percent">Commission %</Label>
+              <Input
+                id="commission_percent"
+                type="number"
+                value={form.commission_percent}
+                onChange={(e) => setForm((f) => ({ ...f, commission_percent: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Commission Earned</Label>
+              <div className="h-9 flex items-center px-3 rounded-lg border bg-muted/50 text-sm font-semibold text-emerald-600">
+                ₹{commissionEarned.toLocaleString('en-IN')}
+              </div>
             </div>
           </div>
 
@@ -163,6 +221,11 @@ export default function B2CLeadDetailPage({ params }: { params: Promise<{ id: st
                   </span>
                 )}
               </div>
+              {lead.matched_venue?.name && (
+                <p className="text-xs text-muted-foreground mt-2">
+                  Matched venue: <span className="font-medium text-foreground">{lead.matched_venue.name}</span>
+                </p>
+              )}
             </div>
           </div>
 

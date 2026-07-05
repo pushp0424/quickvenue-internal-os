@@ -23,6 +23,20 @@ export async function getCities(): Promise<{ id: string; name: string }[]> {
 }
 
 // =========================================
+// VENUES (for B2C matched_venue_id picker)
+// =========================================
+export async function getVenuesForMatch(): Promise<{ id: string; name: string; city: string }[]> {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('venues')
+    .select('id, name, city')
+    .eq('is_active', true)
+    .order('name')
+  if (error) throw error
+  return data ?? []
+}
+
+// =========================================
 // B2B CRM
 // =========================================
 export async function getB2BLeads(filters?: {
@@ -162,7 +176,7 @@ export async function getB2CLeads(filters?: {
   const supabase = createClient()
   let q = supabase
     .from('customer_leads' as any)
-    .select('*')
+    .select('*, city:cities(id, name), assignee:profiles!customer_leads_assigned_to_fkey(id, full_name, avatar_url)')
     .order('created_at', { ascending: false })
 
   if (filters?.cityId) q = q.eq('city_id', filters.cityId)
@@ -240,7 +254,7 @@ export async function getB2CLeadById(id: string): Promise<Record<string, any>> {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('customer_leads' as any)
-    .select('*, assignee:profiles!customer_leads_assigned_to_fkey(id, full_name, avatar_url), city:cities(id, name)')
+    .select('*, assignee:profiles!customer_leads_assigned_to_fkey(id, full_name, avatar_url), city:cities(id, name), matched_venue:venues(id, name)')
     .eq('id', id)
     .single()
   if (error) throw error
