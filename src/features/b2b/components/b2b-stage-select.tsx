@@ -22,8 +22,8 @@ export function B2BStageSelect({ leadId, stage, size = 'default' }: Props) {
     >
       <SelectTrigger
         className={size === 'sm'
-          ? 'h-7 w-full border-0 shadow-none p-0 [&>svg]:hidden'
-          : 'h-7 w-[140px] border-0 shadow-none p-0 [&>svg]:hidden'}
+          ? 'h-7 w-full border border-input shadow-none px-1.5 cursor-pointer hover:border-ring transition-colors'
+          : 'h-7 w-[140px] border border-input shadow-none px-1.5 cursor-pointer hover:border-ring transition-colors'}
       >
         <B2BStageBadge stage={stage} />
       </SelectTrigger>
