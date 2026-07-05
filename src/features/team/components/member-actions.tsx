@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { useDeactivateMember, useReactivateMember, useUpdateMemberRole } from '@/features/team/hooks/use-team'
+import { resetMemberPasswordAction } from '@/features/team/actions/reset-password.action'
+import { CredentialsDialog } from '@/features/team/components/credentials-dialog'
 import { TeamMember } from '@/services/supabase/team-queries'
 import { RoleName } from '@/types/auth.types'
 import { Button } from '@/components/ui/button'
@@ -26,17 +28,23 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { MoreHorizontal, UserX, UserCheck, Shield } from 'lucide-react'
+import { MoreHorizontal, UserX, UserCheck, Shield, KeyRound } from 'lucide-react'
 import { toast } from 'sonner'
 
 const ASSIGNABLE_ROLES: { value: RoleName; label: string }[] = [
   { value: 'admin', label: 'Admin' },
   { value: 'city_lead', label: 'City Lead' },
+  { value: 'team_lead', label: 'Team Lead' },
+  { value: 'sales_head', label: 'Sales Head' },
   { value: 'sales_executive', label: 'Sales Executive' },
+  { value: 'operations_head', label: 'Operations Head' },
   { value: 'operations_executive', label: 'Operations Executive' },
   { value: 'venue_acquisition_executive', label: 'Venue Acquisition Exec' },
-  { value: 'developer', label: 'Developer' },
+  { value: 'bda', label: 'BDA' },
+  { value: 'marketing_head', label: 'Marketing Head' },
+  { value: 'finance', label: 'Finance' },
   { value: 'hr', label: 'HR' },
+  { value: 'developer', label: 'Developer' },
 ]
 
 interface Props {
@@ -46,11 +54,25 @@ interface Props {
 
 export function MemberActions({ member, currentUserId }: Props) {
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [resetting, setResetting] = useState(false)
+  const [credentials, setCredentials] = useState<{ email: string; password: string } | null>(null)
   const deactivate = useDeactivateMember()
   const reactivate = useReactivateMember()
   const updateRole = useUpdateMemberRole()
 
   const isSelf = member.id === currentUserId
+
+  async function handleResetPassword() {
+    setResetting(true)
+    try {
+      const result = await resetMemberPasswordAction(member.id)
+      setCredentials({ email: member.email, password: result.password })
+    } catch {
+      toast.error('Failed to reset password')
+    } finally {
+      setResetting(false)
+    }
+  }
 
   async function handleDeactivate() {
     try {
@@ -117,6 +139,14 @@ export function MemberActions({ member, currentUserId }: Props) {
 
           <DropdownMenuSeparator />
 
+          {/* Reset Password */}
+          <DropdownMenuItem onClick={handleResetPassword} disabled={resetting} className="gap-2">
+            <KeyRound className="h-4 w-4" />
+            Reset Password
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
           {/* Activate / Deactivate */}
           {member.is_active ? (
             <DropdownMenuItem
@@ -160,6 +190,15 @@ export function MemberActions({ member, currentUserId }: Props) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {credentials && (
+        <CredentialsDialog
+          open={!!credentials}
+          onOpenChange={(o) => !o && setCredentials(null)}
+          email={credentials.email}
+          password={credentials.password}
+        />
+      )}
     </>
   )
 }

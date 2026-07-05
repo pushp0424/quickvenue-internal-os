@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createMemberAction } from '@/features/team/actions/create-member.action'
+import { CredentialsDialog } from '@/features/team/components/credentials-dialog'
 import { RoleName } from '@/types/auth.types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -28,11 +29,17 @@ import { toast } from 'sonner'
 const ROLES: { value: RoleName; label: string }[] = [
   { value: 'admin', label: 'Admin' },
   { value: 'city_lead', label: 'City Lead' },
+  { value: 'team_lead', label: 'Team Lead' },
+  { value: 'sales_head', label: 'Sales Head' },
   { value: 'sales_executive', label: 'Sales Executive' },
+  { value: 'operations_head', label: 'Operations Head' },
   { value: 'operations_executive', label: 'Operations Executive' },
   { value: 'venue_acquisition_executive', label: 'Venue Acquisition Executive' },
-  { value: 'developer', label: 'Developer' },
+  { value: 'bda', label: 'BDA' },
+  { value: 'marketing_head', label: 'Marketing Head' },
+  { value: 'finance', label: 'Finance' },
   { value: 'hr', label: 'HR' },
+  { value: 'developer', label: 'Developer' },
 ]
 
 const CITIES = [
@@ -48,6 +55,7 @@ export function AddMemberModal({ onSuccess }: Props) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [credentials, setCredentials] = useState<{ email: string; password: string } | null>(null)
 
   const [form, setForm] = useState({
     fullName: '',
@@ -71,7 +79,7 @@ export function AddMemberModal({ onSuccess }: Props) {
 
     setLoading(true)
     try {
-      await createMemberAction({
+      const result = await createMemberAction({
         email: form.email,
         fullName: form.fullName,
         phone: form.phone || undefined,
@@ -80,8 +88,9 @@ export function AddMemberModal({ onSuccess }: Props) {
         role: form.role as RoleName,
       })
 
-      toast.success(`${form.fullName} added successfully! They'll receive a password setup email.`)
+      toast.success(`${form.fullName} added successfully`)
       setOpen(false)
+      setCredentials({ email: form.email, password: result.password })
       setForm({ fullName: '', email: '', phone: '', city: '', designation: '', role: '' })
       router.refresh()
       onSuccess?.()
@@ -93,6 +102,7 @@ export function AddMemberModal({ onSuccess }: Props) {
   }
 
   return (
+    <>
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="bg-[#0244C6] hover:bg-[#012775] gap-2">
@@ -105,7 +115,7 @@ export function AddMemberModal({ onSuccess }: Props) {
         <DialogHeader>
           <DialogTitle>Add New Team Member</DialogTitle>
           <DialogDescription>
-            They'll receive an email to set their password and access Quick Venue OS.
+            Creates their login. You&apos;ll get a one-time password to share with them directly.
           </DialogDescription>
         </DialogHeader>
 
@@ -224,5 +234,15 @@ export function AddMemberModal({ onSuccess }: Props) {
         </form>
       </DialogContent>
     </Dialog>
+
+    {credentials && (
+      <CredentialsDialog
+        open={!!credentials}
+        onOpenChange={(o) => !o && setCredentials(null)}
+        email={credentials.email}
+        password={credentials.password}
+      />
+    )}
+    </>
   )
 }

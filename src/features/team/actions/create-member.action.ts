@@ -3,6 +3,7 @@
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { createClient as createServerClient } from '@/services/supabase/server'
 import { RoleName } from '@/types/auth.types'
+import { generateTempPassword } from '@/features/team/utils/generate-password'
 
 function getAdminClient() {
   return createServiceClient(
@@ -36,12 +37,13 @@ export async function createMemberAction(input: CreateMemberInput) {
   )
   if (!isAuthorized) throw new Error('Not authorized')
 
-  // 2. Create auth user
+  // 2. Create auth user with a real, usable password
   const admin = getAdminClient()
+  const password = generateTempPassword()
   const { data: newUser, error: createError } = await admin.auth.admin.createUser({
     email: input.email,
     email_confirm: true,
-    password: crypto.randomUUID(),
+    password,
     user_metadata: { full_name: input.fullName },
   })
   if (createError) throw createError
@@ -71,11 +73,5 @@ export async function createMemberAction(input: CreateMemberInput) {
     })
   }
 
-  // 5. Send password reset email
-  await admin.auth.admin.generateLink({
-    type: 'recovery',
-    email: input.email,
-  })
-
-  return { success: true, userId: newUser.user.id }
+  return { success: true, userId: newUser.user.id, password }
 }
