@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Users, MapPin,
   TrendingUp, Code2, UserCog, Settings,
-  Building2, ShoppingBag, ClipboardList,
+  Building2, ShoppingBag, ClipboardList, Wrench,
 } from 'lucide-react'
 import { RoleName } from '@/types/auth.types'
 
@@ -26,6 +26,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'B2B CRM',          href: '/b2b',        icon: Building2,       roles: ['founder', 'admin', 'city_lead', 'venue_acquisition_executive', 'operations_head', 'bda'] },
   { label: 'B2C CRM',          href: '/b2c',        icon: ShoppingBag,     roles: ['founder', 'admin', 'sales_executive', 'sales_head', 'bda', 'city_lead'] },
   { label: 'My CRM',           href: '/crm',        icon: ClipboardList,   roles: ['bda', 'team_lead', 'sales_executive', 'operations_executive'] },
+  { label: 'Operations',       href: '/operations', icon: Wrench,          roles: ['founder', 'admin', 'operations_head', 'city_lead'] },
   { label: 'City Dashboard',   href: '/city',       icon: MapPin,          roles: ['founder', 'admin', 'city_lead', 'venue_acquisition_executive', 'operations_head'] },
   { label: 'Sales Dashboard',  href: '/sales',      icon: TrendingUp,      roles: ['founder', 'admin', 'sales_executive', 'operations_executive', 'sales_head'] },
   { label: 'Developer Tools',  href: '/developer',  icon: Code2,           roles: ['founder', 'developer'] },

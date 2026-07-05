@@ -322,7 +322,7 @@ export type Database = {
           venue_address: string | null
           venue_area: string | null
           venue_category: string | null
-          venue_id: string
+          venue_id: string | null
           venue_name: string | null
           visit_date: string | null
           visit_done: boolean | null
@@ -355,7 +355,7 @@ export type Database = {
           venue_address?: string | null
           venue_area?: string | null
           venue_category?: string | null
-          venue_id: string
+          venue_id?: string | null
           venue_name?: string | null
           visit_date?: string | null
           visit_done?: boolean | null
@@ -388,7 +388,7 @@ export type Database = {
           venue_address?: string | null
           venue_area?: string | null
           venue_category?: string | null
-          venue_id?: string
+          venue_id?: string | null
           venue_name?: string | null
           visit_date?: string | null
           visit_done?: boolean | null
@@ -576,6 +576,66 @@ export type Database = {
           },
         ]
       }
+      vendors: {
+        Row: {
+          category: string | null
+          city_id: string | null
+          contact_name: string | null
+          created_at: string
+          created_by: string | null
+          email: string | null
+          id: string
+          is_active: boolean
+          name: string
+          notes: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          city_id?: string | null
+          contact_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          city_id?: string | null
+          contact_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendors_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendors_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       venues: {
         Row: {
           address: string | null
@@ -599,6 +659,7 @@ export type Database = {
           images: string[] | null
           is_active: boolean | null
           is_featured: boolean | null
+          listed_on_platform: boolean
           name: string
           notes: string | null
           owner_email: string | null
@@ -608,6 +669,7 @@ export type Database = {
           price_per_day: number | null
           price_per_hour: number | null
           status: string
+          test_booking_done: boolean
           updated_at: string | null
           updated_by: string | null
         }
@@ -633,6 +695,7 @@ export type Database = {
           images?: string[] | null
           is_active?: boolean | null
           is_featured?: boolean | null
+          listed_on_platform?: boolean
           name: string
           notes?: string | null
           owner_email?: string | null
@@ -642,6 +705,7 @@ export type Database = {
           price_per_day?: number | null
           price_per_hour?: number | null
           status?: string
+          test_booking_done?: boolean
           updated_at?: string | null
           updated_by?: string | null
         }
@@ -667,6 +731,7 @@ export type Database = {
           images?: string[] | null
           is_active?: boolean | null
           is_featured?: boolean | null
+          listed_on_platform?: boolean
           name?: string
           notes?: string | null
           owner_email?: string | null
@@ -676,6 +741,7 @@ export type Database = {
           price_per_day?: number | null
           price_per_hour?: number | null
           status?: string
+          test_booking_done?: boolean
           updated_at?: string | null
           updated_by?: string | null
         }

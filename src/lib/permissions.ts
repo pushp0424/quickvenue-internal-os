@@ -11,6 +11,7 @@ export const ROUTE_ACCESS: Record<string, RoleName[]> = {
   '/crm':       ['founder', 'admin', 'city_lead', 'sales_executive', 'operations_executive', 'bda', 'sales_head', 'operations_head'],
   '/b2b':       ['founder', 'admin', 'city_lead', 'venue_acquisition_executive', 'operations_head', 'bda'],
   '/b2c':       ['founder', 'admin', 'sales_executive', 'sales_head', 'bda', 'city_lead'],
+  '/operations': ['founder', 'admin', 'operations_head', 'city_lead'],
 }
 
 export const PERMISSIONS = {
