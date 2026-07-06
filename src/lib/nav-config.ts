@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Users, MapPin,
   TrendingUp, Code2, UserCog, Settings,
-  Building2, ShoppingBag, ClipboardList, Wrench, Wallet, CalendarCheck, CalendarDays, Banknote, ListTodo, Target, MessageSquare,
+  Building2, ShoppingBag, ClipboardList, Wrench, Wallet, CalendarCheck, CalendarDays, Banknote, ListTodo, Target, MessageSquare, CalendarRange,
 } from 'lucide-react'
 import { RoleName } from '@/types/auth.types'
 
@@ -38,6 +38,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Tasks',            href: '/tasks',      icon: ListTodo,        roles: ALL_ROLES },
   { label: 'Goals',            href: '/goals',      icon: Target,          roles: ALL_ROLES },
   { label: 'Chat',             href: '/chat',       icon: MessageSquare,   roles: ALL_ROLES },
+  { label: 'Calendar',         href: '/calendar',   icon: CalendarRange,   roles: ALL_ROLES },
   { label: 'Settings',         href: '/settings',   icon: Settings,        roles: ALL_ROLES },
 ]
 

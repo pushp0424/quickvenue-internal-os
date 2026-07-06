@@ -37,3 +37,15 @@ export function getMonthStart(d: Date): Date {
 export function getMonthEnd(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth() + 1, 0)
 }
+
+export function getDayStart(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate())
+}
+
+// Exclusive upper bound (start of the next day) — for comparing against
+// timestamptz columns with `.lt()` rather than an inclusive same-day end.
+export function getDayEnd(d: Date): Date {
+  const end = getDayStart(d)
+  end.setDate(end.getDate() + 1)
+  return end
+}
