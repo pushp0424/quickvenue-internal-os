@@ -19,7 +19,11 @@ const AuthContext = createContext<AuthContextValue>({
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
-  const [loading, setLoading] = useState(false)
+  // Start in a loading state so consumers render skeletons until the initial
+  // session check completes, rather than flashing unauthenticated UI on refresh.
+  // Every path below (getSession then/else/catch, and the auth-change handler)
+  // resolves this back to false.
+  const [loading, setLoading] = useState(true)
 
   const refresh = useCallback(async () => {
     try {
