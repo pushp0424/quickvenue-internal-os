@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { RoleName } from '@/types/auth.types'
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -27,5 +28,19 @@ export async function updateSession(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  return { supabaseResponse, user, supabase, roles: [] }
+  // Fetch the user's roles so the proxy can enforce route-level access.
+  // Only runs when a session exists, keeping unauthenticated requests cheap.
+  let roles: RoleName[] = []
+  if (user) {
+    const { data: roleRows } = await supabase
+      .from('user_roles')
+      .select('roles(name)')
+      .eq('user_id', user.id)
+    roles = (roleRows ?? [])
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .map((r: any) => r.roles?.name)
+      .filter(Boolean) as RoleName[]
+  }
+
+  return { supabaseResponse, user, supabase, roles }
 }
