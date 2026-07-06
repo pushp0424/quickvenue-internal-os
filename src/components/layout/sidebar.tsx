@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/context/auth-provider'
 import { getVisibleNavItems } from '@/lib/nav-config'
+import { useUnreadChannelCount } from '@/features/chat/hooks/use-chat'
 import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -11,6 +12,7 @@ export function Sidebar() {
   const pathname = usePathname()
   const { user, loading } = useAuth()
   const navItems = user ? getVisibleNavItems(user.roles) : []
+  const { data: unreadChatCount } = useUnreadChannelCount()
 
   return (
     <aside className="hidden md:flex w-64 flex-col shrink-0 bg-[#012775] text-white overflow-hidden">
@@ -45,7 +47,12 @@ export function Sidebar() {
               >
                 <Icon className={cn('h-4 w-4 shrink-0', isActive ? 'text-white' : 'text-white/50')} />
                 <span className="truncate">{item.label}</span>
-                {isActive && (
+                {item.href === '/chat' && !!unreadChatCount && (
+                  <span className="ml-auto h-4 min-w-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                    {unreadChatCount > 9 ? '9+' : unreadChatCount}
+                  </span>
+                )}
+                {isActive && !(item.href === '/chat' && !!unreadChatCount) && (
                   <span className="ml-auto h-1.5 w-1.5 rounded-full bg-[#D4AF37] shrink-0" />
                 )}
               </Link>

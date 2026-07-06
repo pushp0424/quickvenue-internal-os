@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { Menu } from 'lucide-react'
 import { useAuth } from '@/context/auth-provider'
 import { getVisibleNavItems } from '@/lib/nav-config'
+import { useUnreadChannelCount } from '@/features/chat/hooks/use-chat'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { cn } from '@/lib/utils'
@@ -15,6 +16,7 @@ export function MobileSidebar() {
   const pathname = usePathname()
   const { user } = useAuth()
   const navItems = user ? getVisibleNavItems(user.roles) : []
+  const { data: unreadChatCount } = useUnreadChannelCount()
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -46,7 +48,12 @@ export function MobileSidebar() {
                 )}
               >
                 <Icon className="h-4 w-4 shrink-0" />
-                {item.label}
+                <span className="truncate">{item.label}</span>
+                {item.href === '/chat' && !!unreadChatCount && (
+                  <span className="ml-auto h-4 min-w-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                    {unreadChatCount > 9 ? '9+' : unreadChatCount}
+                  </span>
+                )}
               </Link>
             )
           })}

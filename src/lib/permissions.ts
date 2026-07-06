@@ -18,6 +18,7 @@ export const ROUTE_ACCESS: Record<string, RoleName[]> = {
   '/payroll':    ['founder', 'admin', 'city_lead', 'sales_executive', 'operations_executive', 'venue_acquisition_executive', 'developer', 'hr', 'bda', 'sales_head', 'operations_head', 'finance', 'marketing_head', 'team_lead'],
   '/tasks':      ['founder', 'admin', 'city_lead', 'sales_executive', 'operations_executive', 'venue_acquisition_executive', 'developer', 'hr', 'bda', 'sales_head', 'operations_head', 'finance', 'marketing_head', 'team_lead'],
   '/goals':      ['founder', 'admin', 'city_lead', 'sales_executive', 'operations_executive', 'venue_acquisition_executive', 'developer', 'hr', 'bda', 'sales_head', 'operations_head', 'finance', 'marketing_head', 'team_lead'],
+  '/chat':       ['founder', 'admin', 'city_lead', 'sales_executive', 'operations_executive', 'venue_acquisition_executive', 'developer', 'hr', 'bda', 'sales_head', 'operations_head', 'finance', 'marketing_head', 'team_lead'],
 }
 
 export const PERMISSIONS = {
