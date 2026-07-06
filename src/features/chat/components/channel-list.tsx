@@ -39,7 +39,7 @@ export function ChannelList({ channels, selectedChannelId, onSelect }: Props) {
 
   return (
     <div className="flex flex-col h-full border-r">
-      <div className="flex items-center gap-2 p-3 border-b shrink-0">
+      <div className="flex items-center gap-2 h-16 px-3 border-b shrink-0">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search messages..." className="pl-9 h-9" />

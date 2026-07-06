@@ -42,7 +42,7 @@ export function MessageThread({ channel, onBack }: Props) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-3 border-b px-4 py-3 shrink-0">
+      <div className="flex items-center gap-3 h-16 border-b px-4 shrink-0">
         {onBack && (
           <Button variant="ghost" size="icon" className="md:hidden" onClick={onBack}>
             <ArrowLeft className="h-4 w-4" />

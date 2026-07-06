@@ -57,9 +57,12 @@ function ChatPageContent() {
           {selectedChannel ? (
             <MessageThread channel={selectedChannel} onBack={goBack} />
           ) : (
-            <div className="hidden md:flex h-full items-center justify-center flex-col gap-2 text-muted-foreground">
-              <MessageSquare className="h-10 w-10 opacity-30" />
-              <p className="text-sm">Select a conversation to start chatting</p>
+            <div className="hidden md:flex h-full flex-col">
+              <div className="h-16 border-b shrink-0" />
+              <div className="flex-1 flex items-center justify-center flex-col gap-2 text-muted-foreground">
+                <MessageSquare className="h-10 w-10 opacity-30" />
+                <p className="text-sm">Select a conversation to start chatting</p>
+              </div>
             </div>
           )}
         </div>
