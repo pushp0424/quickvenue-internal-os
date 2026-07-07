@@ -108,6 +108,27 @@ export async function updateVenueOperations(id: string, input: Record<string, an
   return data
 }
 
+export async function createVenueOperations(input: Record<string, any>) {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const { data, error } = await supabase
+    .from('venues')
+    .insert({ ...input, created_by: user?.id ?? null } as any)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function deleteVenueOperations(id: string) {
+  const supabase = createClient()
+  const { error } = await supabase
+    .from('venues')
+    .update({ is_active: false } as any)
+    .eq('id', id)
+  if (error) throw error
+}
+
 // =========================================
 // VENDORS
 // =========================================

@@ -3,8 +3,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   getOperationsVenues, getOperationsStats, getOperationsBreakdowns, updateVenueOperations,
+  createVenueOperations, deleteVenueOperations,
   getVendors, createVendor, updateVendor, deleteVendor,
 } from '@/services/supabase/operations-services'
+
+function invalidateVenueQueries(qc: ReturnType<typeof useQueryClient>) {
+  qc.invalidateQueries({ queryKey: ['operations-venues'] })
+  qc.invalidateQueries({ queryKey: ['operations-stats'] })
+  qc.invalidateQueries({ queryKey: ['operations-breakdowns'] })
+  qc.invalidateQueries({ queryKey: ['venues'] })
+  qc.invalidateQueries({ queryKey: ['venue-stats'] })
+  qc.invalidateQueries({ queryKey: ['city-overview'] })
+  qc.invalidateQueries({ queryKey: ['all-cities-overview'] })
+}
 
 export function useOperationsVenues(filters?: { cityId?: string; status?: string; search?: string }) {
   return useQuery({
@@ -35,10 +46,23 @@ export function useUpdateVenueOperations() {
   return useMutation({
     mutationFn: ({ id, input }: { id: string; input: Record<string, unknown> }) =>
       updateVenueOperations(id, input),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['operations-venues'] })
-      qc.invalidateQueries({ queryKey: ['operations-stats'] })
-    },
+    onSuccess: () => invalidateVenueQueries(qc),
+  })
+}
+
+export function useCreateVenueOperations() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: createVenueOperations,
+    onSuccess: () => invalidateVenueQueries(qc),
+  })
+}
+
+export function useDeleteVenueOperations() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: deleteVenueOperations,
+    onSuccess: () => invalidateVenueQueries(qc),
   })
 }
 

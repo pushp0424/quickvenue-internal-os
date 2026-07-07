@@ -10,6 +10,7 @@ import { BreakdownBarCard } from '@/components/shared/breakdown-bar-card'
 import { VenueOnboardingList } from '@/features/operations/components/venue-onboarding-list'
 import { VendorList } from '@/features/operations/components/vendor-list'
 import { AddVendorModal } from '@/features/operations/components/add-vendor-modal'
+import { AddVenueModal } from '@/features/operations/components/add-venue-modal'
 import { Card, CardContent } from '@/components/ui/card'
 import { Building2, CheckCircle2, Clock, AlertTriangle, MapPin, ClipboardCheck, Globe } from 'lucide-react'
 
@@ -106,7 +107,11 @@ export default function OperationsDashboard() {
 
       {/* Venue onboarding tracker */}
       <div>
-        <SectionHeader title="Venue Onboarding Tracker" subtitle="Track every venue through the onboarding checklist" />
+        <SectionHeader
+          title="Venue Onboarding Tracker"
+          subtitle="Track every venue through the onboarding checklist"
+          action={<AddVenueModal />}
+        />
         <div className="mt-4">
           <VenueOnboardingList />
         </div>

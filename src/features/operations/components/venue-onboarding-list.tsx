@@ -7,6 +7,10 @@ import { useOperationsVenues, useUpdateVenueOperations } from '@/features/operat
 import { useCities } from '@/features/b2b/hooks/use-b2b-leads'
 import { VenueStatusBadge } from '@/features/crm/components/venue-status-badge'
 import { OnboardingChecklist, OnboardingChecklistVenue } from '@/features/operations/components/onboarding-checklist'
+import { EditVenueModal, EditableVenue } from '@/features/operations/components/edit-venue-modal'
+import { hasPermission } from '@/lib/permissions'
+import { Button } from '@/components/ui/button'
+import { Pencil } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -31,7 +35,9 @@ export function VenueOnboardingList() {
   const [search, setSearch] = useState('')
   const [cityFilter, setCityFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState<VenueStatus | 'all'>('all')
+  const [editingVenue, setEditingVenue] = useState<EditableVenue | null>(null)
 
+  const canManage = hasPermission(user?.roles ?? [], 'ADD_VENUES')
   const scoped = isCityScoped(user?.roles ?? [])
   const cityId = scoped ? (user?.profile.city_id ?? undefined) : (cityFilter !== 'all' ? cityFilter : undefined)
 
@@ -99,7 +105,7 @@ export function VenueOnboardingList() {
           {venues.map((venue) => {
             const expiring = isAgreementExpiring(venue.agreement_expiry)
             return (
-              <Card key={venue.id}>
+              <Card key={venue.id} className="hover:shadow-md hover:border-[#0244C6]/40 transition-all">
                 <CardContent className="p-4 flex flex-col md:flex-row gap-4 md:items-center">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <div className="h-10 w-10 rounded-lg bg-[#0244C6]/10 flex items-center justify-center shrink-0">
@@ -124,18 +130,36 @@ export function VenueOnboardingList() {
                     </div>
                   </div>
 
-                  <div className="md:w-[240px] shrink-0">
+                  <div className="md:w-[240px] shrink-0 flex items-center gap-2">
                     <OnboardingChecklist
                       venue={venue as OnboardingChecklistVenue}
                       disabled={updateVenue.isPending}
                       onToggle={(field, value) => updateVenue.mutate({ id: venue.id, input: { [field]: value } })}
                     />
+                    {canManage && (
+                      <Button
+                        variant="ghost" size="icon"
+                        className="h-7 w-7 shrink-0 text-muted-foreground hover:text-foreground"
+                        title="Edit venue"
+                        onClick={() => setEditingVenue(venue as EditableVenue)}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
             )
           })}
         </div>
+      )}
+
+      {editingVenue && (
+        <EditVenueModal
+          venue={editingVenue}
+          open={!!editingVenue}
+          onOpenChange={(open) => { if (!open) setEditingVenue(null) }}
+        />
       )}
     </div>
   )
