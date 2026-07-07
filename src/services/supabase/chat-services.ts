@@ -310,6 +310,12 @@ export async function toggleReaction(messageId: string, emoji: string) {
   }
 }
 
+export async function deleteMessage(messageId: string) {
+  const supabase = createClient()
+  const { error } = await supabase.from('messages' as any).delete().eq('id', messageId)
+  if (error) throw error
+}
+
 // =========================================
 // SEARCH
 // =========================================

@@ -2,8 +2,8 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  getTasks, getTaskById, createTask, updateTask, markTaskComplete, TaskInput,
-  getTaskComments, addTaskComment,
+  getTasks, getTaskById, createTask, updateTask, markTaskComplete, deleteTask, TaskInput,
+  getTaskComments, addTaskComment, deleteTaskComment,
   getTaskAttachments, uploadTaskAttachment, getTaskAttachmentSignedUrl, deleteTaskAttachment,
 } from '@/services/supabase/tasks-services'
 
@@ -56,6 +56,14 @@ export function useMarkTaskComplete() {
   })
 }
 
+export function useDeleteTask() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => deleteTask(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+  })
+}
+
 export function useTaskComments(taskId: string) {
   return useQuery({
     queryKey: ['task-comments', taskId],
@@ -68,6 +76,14 @@ export function useAddTaskComment() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: ({ taskId, body }: { taskId: string; body: string }) => addTaskComment(taskId, body),
+    onSuccess: (_data, { taskId }) => qc.invalidateQueries({ queryKey: ['task-comments', taskId] }),
+  })
+}
+
+export function useDeleteTaskComment() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id }: { id: string; taskId: string }) => deleteTaskComment(id),
     onSuccess: (_data, { taskId }) => qc.invalidateQueries({ queryKey: ['task-comments', taskId] }),
   })
 }

@@ -6,7 +6,7 @@ import { createClient } from '@/services/supabase/client'
 import {
   getOrCreateScopedChannel, getOrCreateDirectChannel,
   getMyChannels, getUnreadChannelCount, getChannelMembers,
-  getMessages, sendMessage, markChannelRead,
+  getMessages, sendMessage, markChannelRead, deleteMessage,
   uploadChatAttachment, getChatAttachmentSignedUrl,
   toggleReaction, searchMessages, ChannelType,
 } from '@/services/supabase/chat-services'
@@ -120,6 +120,17 @@ export function useMarkChannelRead() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['chat-channels'] })
       qc.invalidateQueries({ queryKey: ['chat-unread-count'] })
+    },
+  })
+}
+
+export function useDeleteMessage() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ messageId }: { messageId: string; channelId: string }) => deleteMessage(messageId),
+    onSuccess: (_data, { channelId }) => {
+      qc.invalidateQueries({ queryKey: ['chat-messages', channelId] })
+      qc.invalidateQueries({ queryKey: ['chat-channels'] })
     },
   })
 }

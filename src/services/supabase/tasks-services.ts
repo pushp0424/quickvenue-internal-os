@@ -155,6 +155,14 @@ export async function markTaskComplete(id: string, notifyProfileIds: string[] = 
   return updateTask(id, { status: 'done', completed_at: new Date().toISOString() }, notifyProfileIds)
 }
 
+export async function deleteTask(id: string) {
+  const supabase = createClient()
+  // Assignees, comments, and attachments cascade via their ON DELETE CASCADE
+  // FKs; storage files are best-effort removed by the caller if needed.
+  const { error } = await supabase.from('tasks' as any).delete().eq('id', id)
+  if (error) throw error
+}
+
 // =========================================
 // COMMENTS
 // =========================================
@@ -179,6 +187,12 @@ export async function addTaskComment(taskId: string, body: string) {
     .single()
   if (error) throw error
   return data
+}
+
+export async function deleteTaskComment(id: string) {
+  const supabase = createClient()
+  const { error } = await supabase.from('task_comments' as any).delete().eq('id', id)
+  if (error) throw error
 }
 
 // =========================================

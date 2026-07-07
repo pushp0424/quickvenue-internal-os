@@ -3,10 +3,12 @@
 import { useRef, useState } from 'react'
 import { useAuth } from '@/context/auth-provider'
 import {
-  useTask, useUpdateTask,
-  useTaskComments, useAddTaskComment,
+  useTask, useUpdateTask, useDeleteTask,
+  useTaskComments, useAddTaskComment, useDeleteTaskComment,
   useTaskAttachments, useUploadTaskAttachment, useTaskAttachmentSignedUrl, useDeleteTaskAttachment,
 } from '@/features/tasks/hooks/use-tasks'
+import { hasPermission } from '@/lib/permissions'
+import { ConfirmDeleteButton } from '@/components/shared/confirm-delete-button'
 import { TaskPriorityBadge } from '@/features/tasks/components/task-priority-badge'
 import { TaskStatusBadge } from '@/features/tasks/components/task-status-badge'
 import {
@@ -45,6 +47,12 @@ export function TaskDetailPanel({ taskId, onClose }: Props) {
   const uploadAttachment = useUploadTaskAttachment()
   const getSignedUrl = useTaskAttachmentSignedUrl()
   const deleteAttachment = useDeleteTaskAttachment()
+  const deleteTask = useDeleteTask()
+  const deleteComment = useDeleteTaskComment()
+
+  const myId = user?.profile.id
+  const isAdmin = hasPermission(user?.roles ?? [], 'MANAGE_USERS')
+  const canManageTask = isAdmin || task?.assigned_by === myId
 
   const [commentBody, setCommentBody] = useState('')
   const [posting, setPosting] = useState(false)
@@ -119,6 +127,27 @@ export function TaskDetailPanel({ taskId, onClose }: Props) {
       toast.success('Attachment removed')
     } catch {
       toast.error('Failed to remove attachment')
+    }
+  }
+
+  async function handleDeleteTask() {
+    if (!taskId) return
+    try {
+      await deleteTask.mutateAsync(taskId)
+      toast.success('Task deleted')
+      onClose()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete task')
+    }
+  }
+
+  async function handleDeleteComment(id: string) {
+    if (!taskId) return
+    try {
+      await deleteComment.mutateAsync({ id, taskId })
+      toast.success('Comment deleted')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete comment')
     }
   }
 
@@ -205,7 +234,7 @@ export function TaskDetailPanel({ taskId, onClose }: Props) {
                 <h3 className="text-sm font-semibold">Comments</h3>
                 <div className="space-y-3">
                   {(comments ?? []).map((c) => (
-                    <div key={c.id} className="flex gap-2.5">
+                    <div key={c.id} className="flex gap-2.5 group">
                       <Avatar className="h-7 w-7 shrink-0">
                         <AvatarFallback className="bg-[#0244C6] text-white text-[10px] font-bold">
                           {c.author?.full_name ? initials(c.author.full_name) : '?'}
@@ -218,6 +247,15 @@ export function TaskDetailPanel({ taskId, onClose }: Props) {
                         </div>
                         <p className="text-sm text-muted-foreground whitespace-pre-wrap">{c.body}</p>
                       </div>
+                      {(isAdmin || c.author_id === myId) && (
+                        <ConfirmDeleteButton
+                          iconOnly
+                          className="opacity-0 group-hover:opacity-100 shrink-0"
+                          title="Delete comment?"
+                          description="This permanently removes the comment."
+                          onConfirm={() => handleDeleteComment(c.id)}
+                        />
+                      )}
                     </div>
                   ))}
                   {(!comments || comments.length === 0) && (
@@ -236,6 +274,17 @@ export function TaskDetailPanel({ taskId, onClose }: Props) {
                   </Button>
                 </form>
               </div>
+
+              {canManageTask && (
+                <div className="border-t pt-4">
+                  <ConfirmDeleteButton
+                    label="Delete Task"
+                    title="Delete this task?"
+                    description="This permanently removes the task and all its comments and attachments. This cannot be undone."
+                    onConfirm={handleDeleteTask}
+                  />
+                </div>
+              )}
             </div>
           </>
         )}

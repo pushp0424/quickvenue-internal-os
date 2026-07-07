@@ -2,14 +2,17 @@
 
 import { useState } from 'react'
 import { useAuth } from '@/context/auth-provider'
-import { useToggleReaction, useChatAttachmentSignedUrl } from '@/features/chat/hooks/use-chat'
+import { useToggleReaction, useChatAttachmentSignedUrl, useDeleteMessage } from '@/features/chat/hooks/use-chat'
+import { hasPermission } from '@/lib/permissions'
 import { ChatMessage } from '@/services/supabase/chat-services'
+import { ConfirmDeleteButton } from '@/components/shared/confirm-delete-button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
 } from '@/components/ui/dropdown-menu'
 import { FileText, SmilePlus } from 'lucide-react'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
 const REACTION_EMOJIS = ['👍', '❤️', '😂', '😮', '😢', '🎉']
@@ -44,8 +47,19 @@ export function MessageBubble({ message, channelId }: Props) {
   const { user } = useAuth()
   const toggleReaction = useToggleReaction()
   const getSignedUrl = useChatAttachmentSignedUrl()
+  const deleteMessage = useDeleteMessage()
   const [downloading, setDownloading] = useState(false)
   const isMine = message.sender_id === user?.profile.id
+  const canDelete = isMine || hasPermission(user?.roles ?? [], 'MANAGE_USERS')
+
+  async function handleDelete() {
+    try {
+      await deleteMessage.mutateAsync({ messageId: message.id, channelId })
+      toast.success('Message deleted')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete message')
+    }
+  }
 
   const reactionGroups = new Map<string, string[]>()
   message.reactions.forEach((r) => {
@@ -128,6 +142,15 @@ export function MessageBubble({ message, channelId }: Props) {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+          {canDelete && (
+            <ConfirmDeleteButton
+              iconOnly
+              className="h-5 w-5 opacity-0 group-hover:opacity-100"
+              title="Delete message?"
+              description="This permanently removes the message for everyone in the conversation."
+              onConfirm={handleDelete}
+            />
+          )}
         </div>
       </div>
     </div>
