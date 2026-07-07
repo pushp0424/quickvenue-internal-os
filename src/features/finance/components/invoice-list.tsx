@@ -4,13 +4,15 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/context/auth-provider'
 import { isCityScoped } from '@/lib/permissions'
-import { useInvoices } from '@/features/finance/hooks/use-finance'
+import { useInvoices, useDeleteInvoice } from '@/features/finance/hooks/use-finance'
 import { InvoiceStatusSelect } from '@/features/finance/components/invoice-status-select'
+import { ConfirmDeleteButton } from '@/components/shared/confirm-delete-button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Search, FileText, Printer } from 'lucide-react'
+import { toast } from 'sonner'
 
 export function InvoiceList() {
   const { user } = useAuth()
@@ -19,6 +21,16 @@ export function InvoiceList() {
   const cityId = scoped ? (user?.profile.city_id ?? undefined) : undefined
 
   const { data: invoices, isLoading } = useInvoices({ cityId, search: search || undefined })
+  const deleteInvoice = useDeleteInvoice()
+
+  async function handleDelete(id: string) {
+    try {
+      await deleteInvoice.mutateAsync(id)
+      toast.success('Invoice deleted')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete invoice')
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -69,6 +81,13 @@ export function InvoiceList() {
                     <Printer className="h-4 w-4" />
                   </Link>
                 </Button>
+                <ConfirmDeleteButton
+                  iconOnly
+                  className="h-8 w-8"
+                  title="Delete invoice?"
+                  description={`This permanently removes invoice ${invoice.invoice_number}. This cannot be undone.`}
+                  onConfirm={() => handleDelete(invoice.id)}
+                />
               </div>
             ))}
           </CardContent>

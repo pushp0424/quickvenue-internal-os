@@ -217,6 +217,12 @@ export async function updateInvoiceStatus(id: string, status: string) {
   return data
 }
 
+export async function deleteInvoice(id: string) {
+  const supabase = createClient()
+  const { error } = await supabase.from('invoices' as any).delete().eq('id', id)
+  if (error) throw error
+}
+
 // =========================================
 // TRANSACTIONS (misc ledger entries)
 // =========================================
@@ -245,4 +251,10 @@ export async function createTransaction(input: Record<string, any>) {
     .single()
   if (error) throw error
   return data
+}
+
+export async function deleteTransaction(id: string) {
+  const supabase = createClient()
+  const { error } = await supabase.from('transactions' as any).delete().eq('id', id)
+  if (error) throw error
 }

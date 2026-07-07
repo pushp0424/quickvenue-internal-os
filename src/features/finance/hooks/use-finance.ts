@@ -4,8 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   getFinanceStats, getCityRevenueBreakdown, getBookedLeadsForInvoice,
   getExpenses, createExpense, deleteExpense,
-  getInvoices, getInvoice, createInvoice, updateInvoiceStatus,
-  getTransactions, createTransaction,
+  getInvoices, getInvoice, createInvoice, updateInvoiceStatus, deleteInvoice,
+  getTransactions, createTransaction, deleteTransaction,
 } from '@/services/supabase/finance-services'
 
 export function useFinanceStats() {
@@ -97,6 +97,17 @@ export function useUpdateInvoiceStatus() {
   })
 }
 
+export function useDeleteInvoice() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: deleteInvoice,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['invoices'] })
+      qc.invalidateQueries({ queryKey: ['finance-stats'] })
+    },
+  })
+}
+
 export function useTransactions(filters?: { cityId?: string }) {
   return useQuery({
     queryKey: ['transactions', filters],
@@ -109,6 +120,18 @@ export function useCreateTransaction() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: createTransaction,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['transactions'] })
+      qc.invalidateQueries({ queryKey: ['finance-stats'] })
+      qc.invalidateQueries({ queryKey: ['finance-city-revenue'] })
+    },
+  })
+}
+
+export function useDeleteTransaction() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: deleteTransaction,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['transactions'] })
       qc.invalidateQueries({ queryKey: ['finance-stats'] })

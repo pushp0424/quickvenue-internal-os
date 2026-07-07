@@ -2,10 +2,12 @@
 
 import { useAuth } from '@/context/auth-provider'
 import { isCityScoped } from '@/lib/permissions'
-import { useTransactions } from '@/features/finance/hooks/use-finance'
+import { useTransactions, useDeleteTransaction } from '@/features/finance/hooks/use-finance'
+import { ConfirmDeleteButton } from '@/components/shared/confirm-delete-button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ArrowUpRight, ArrowDownRight, Receipt } from 'lucide-react'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
 export function TransactionList() {
@@ -14,6 +16,16 @@ export function TransactionList() {
   const cityId = scoped ? (user?.profile.city_id ?? undefined) : undefined
 
   const { data: transactions, isLoading } = useTransactions({ cityId })
+  const deleteTransaction = useDeleteTransaction()
+
+  async function handleDelete(id: string) {
+    try {
+      await deleteTransaction.mutateAsync(id)
+      toast.success('Transaction deleted')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete transaction')
+    }
+  }
 
   if (isLoading) {
     return (
@@ -58,6 +70,13 @@ export function TransactionList() {
               <p className={cn('text-sm font-semibold shrink-0', isIncome ? 'text-emerald-600' : 'text-red-600')}>
                 {isIncome ? '+' : '−'}₹{Number(tx.amount).toLocaleString('en-IN')}
               </p>
+              <ConfirmDeleteButton
+                iconOnly
+                className="h-8 w-8"
+                title="Delete transaction?"
+                description="This permanently removes the transaction entry. This cannot be undone."
+                onConfirm={() => handleDelete(tx.id)}
+              />
             </div>
           )
         })}
