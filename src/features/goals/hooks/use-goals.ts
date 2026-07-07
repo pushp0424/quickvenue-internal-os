@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  getGoals, createGoal, updateGoalProgress, getMyHeadedDepartments, getLeaderboard, GoalInput,
+  getGoals, createGoal, updateGoalProgress, deleteGoal, getMyHeadedDepartments, getLeaderboard, GoalInput,
 } from '@/services/supabase/goals-services'
 
 export function useGoals(periodStart: string) {
@@ -28,6 +28,17 @@ export function useUpdateGoalProgress() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: ({ id, newValue }: { id: string; newValue: number }) => updateGoalProgress(id, newValue),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['goals'] })
+      qc.invalidateQueries({ queryKey: ['leaderboard'] })
+    },
+  })
+}
+
+export function useDeleteGoal() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => deleteGoal(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['goals'] })
       qc.invalidateQueries({ queryKey: ['leaderboard'] })

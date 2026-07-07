@@ -114,6 +114,12 @@ export async function updateGoalProgress(id: string, newValue: number) {
   return { goal: data as any, justCompleted }
 }
 
+export async function deleteGoal(id: string) {
+  const supabase = createClient()
+  const { error } = await supabase.from('goals' as any).delete().eq('id', id)
+  if (error) throw error
+}
+
 export async function getMyHeadedDepartments(userId: string): Promise<{ id: string; name: string }[]> {
   const supabase = createClient()
   const { data, error } = await supabase

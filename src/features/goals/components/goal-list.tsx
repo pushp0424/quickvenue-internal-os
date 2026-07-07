@@ -3,7 +3,8 @@
 import { useMemo, useState } from 'react'
 import confetti from 'canvas-confetti'
 import { useAuth } from '@/context/auth-provider'
-import { useGoals, useUpdateGoalProgress } from '@/features/goals/hooks/use-goals'
+import { hasPermission } from '@/lib/permissions'
+import { useGoals, useUpdateGoalProgress, useDeleteGoal } from '@/features/goals/hooks/use-goals'
 import { GoalScopeType } from '@/services/supabase/goals-services'
 import { getWeekStart, toLocalDateStr, cn } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/card'
@@ -12,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { ConfirmDeleteButton } from '@/components/shared/confirm-delete-button'
 import { Target, Pencil, Check, X } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -30,9 +32,11 @@ const TABS: { key: 'mine' | GoalScopeType | 'all'; label: string }[] = [
 export function GoalList() {
   const { user } = useAuth()
   const profileId = user?.profile.id ?? ''
+  const isAdmin = hasPermission(user?.roles ?? [], 'MANAGE_USERS')
   const weekStart = toLocalDateStr(getWeekStart(new Date()))
   const { data: goals, isLoading } = useGoals(weekStart)
   const updateProgress = useUpdateGoalProgress()
+  const deleteGoal = useDeleteGoal()
   const [tab, setTab] = useState<(typeof TABS)[number]['key']>('mine')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editValue, setEditValue] = useState('')
@@ -66,6 +70,15 @@ export function GoalList() {
       setEditingId(null)
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to update progress')
+    }
+  }
+
+  async function handleDelete(id: string) {
+    try {
+      await deleteGoal.mutateAsync(id)
+      toast.success('Goal deleted')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete goal')
     }
   }
 
@@ -106,6 +119,7 @@ export function GoalList() {
             const pct = g.target_value > 0 ? Math.min(100, Math.round((g.current_value / g.target_value) * 100)) : 0
             const isEditing = editingId === g.id
             const canEdit = g.owner_id === profileId
+            const canDelete = canEdit || isAdmin
             return (
               <Card key={g.id}>
                 <CardContent className="p-4 space-y-3">
@@ -123,9 +137,20 @@ export function GoalList() {
                         </p>
                       </div>
                     </div>
-                    <span className={cn('text-sm font-semibold shrink-0', pct >= 100 && 'text-emerald-600')}>
-                      {pct}%
-                    </span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className={cn('text-sm font-semibold', pct >= 100 && 'text-emerald-600')}>
+                        {pct}%
+                      </span>
+                      {canDelete && (
+                        <ConfirmDeleteButton
+                          iconOnly
+                          className="h-7 w-7"
+                          title="Delete this goal?"
+                          description="This permanently removes the goal and its progress. This cannot be undone."
+                          onConfirm={() => handleDelete(g.id)}
+                        />
+                      )}
+                    </div>
                   </div>
 
                   <Progress value={pct} className={pct >= 100 ? '[&>div]:bg-emerald-500' : undefined} />
