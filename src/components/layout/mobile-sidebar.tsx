@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Menu } from 'lucide-react'
 import { useAuth } from '@/context/auth-provider'
@@ -27,9 +28,7 @@ export function MobileSidebar() {
       </SheetTrigger>
       <SheetContent side="left" className="bg-[#012775] text-white border-0 w-64 p-0">
         <div className="h-16 flex items-center px-6 border-b border-white/10">
-          <span className="text-lg font-bold">
-            Quick<span className="text-[#D4AF37]">Venue</span>
-          </span>
+          <Image src="/logo-full.png" alt="QuickVenue" width={3261} height={827} className="h-9 w-auto" />
         </div>
         <nav className="px-3 py-4 space-y-1">
           {navItems.map((item) => {

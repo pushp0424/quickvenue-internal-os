@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div
@@ -14,10 +16,15 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     >
       <div style={{ position: 'relative', width: '100%', maxWidth: '448px' }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <h1 style={{ fontSize: '2.25rem', fontWeight: 700, color: 'white', letterSpacing: '-0.025em' }}>
-            Quick<span style={{ color: '#D4AF37' }}>Venue</span>
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.875rem', marginTop: '4px', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+          <Image
+            src="/logo-full.png"
+            alt="QuickVenue"
+            width={3261}
+            height={827}
+            style={{ height: '56px', width: 'auto', margin: '0 auto' }}
+            priority
+          />
+          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.875rem', marginTop: '8px', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
             Internal OS
           </p>
         </div>

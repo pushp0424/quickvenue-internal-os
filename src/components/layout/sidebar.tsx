@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/context/auth-provider'
 import { getVisibleNavItems } from '@/lib/nav-config'
@@ -18,10 +19,7 @@ export function Sidebar() {
     <aside className="hidden md:flex w-64 flex-col shrink-0 bg-[#012775] text-white overflow-hidden">
       {/* Logo */}
       <div className="h-16 flex items-center px-6 border-b border-white/10 shrink-0">
-        <span className="text-lg font-bold tracking-tight select-none">
-          Quick<span className="text-[#D4AF37]">Venue</span>
-          <span className="ml-2 text-xs font-normal text-white/50 align-middle">OS</span>
-        </span>
+        <Image src="/logo-full.png" alt="QuickVenue" width={3261} height={827} className="h-9 w-auto" priority />
       </div>
 
       {/* Nav */}
