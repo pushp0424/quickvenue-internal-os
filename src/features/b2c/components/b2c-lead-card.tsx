@@ -1,8 +1,15 @@
+'use client'
+
 import Link from 'next/link'
+import { useAuth } from '@/context/auth-provider'
+import { hasPermission } from '@/lib/permissions'
+import { useDeleteB2CLead } from '@/features/b2c/hooks/use-b2c-lead-detail'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import { ConfirmDeleteButton } from '@/components/shared/confirm-delete-button'
 import { B2CStageSelect } from '@/features/b2c/components/b2c-stage-select'
 import { Users, Phone, MessageCircle, Calendar, AlertCircle } from 'lucide-react'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
 export interface B2CLeadCardData {
@@ -46,8 +53,20 @@ interface Props {
 // never nested inside it, or the outer navigation fires alongside the
 // inner click (invalid nested <a>).
 export function B2CLeadCard({ lead, variant = 'row' }: Props) {
+  const { user } = useAuth()
+  const deleteLead = useDeleteB2CLead()
+  const canDelete = hasPermission(user?.roles ?? [], 'DELETE_LEADS')
   const overdue = isOverdue(lead.follow_up_date, lead.pipeline_stage)
   const whatsappPhone = lead.customer_whatsapp || lead.customer_phone
+
+  async function handleDelete() {
+    try {
+      await deleteLead.mutateAsync(lead.id)
+      toast.success('Lead deleted')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete lead')
+    }
+  }
 
   const quickActions = (
     <div className="flex items-center gap-1.5 shrink-0">
@@ -67,6 +86,15 @@ export function B2CLeadCard({ lead, variant = 'row' }: Props) {
       >
         <Phone className="h-3.5 w-3.5 text-[#0244C6]" />
       </a>
+      {canDelete && (
+        <ConfirmDeleteButton
+          iconOnly
+          className="h-7 w-7"
+          title="Delete this lead?"
+          description={`This permanently removes ${lead.customer_name}'s lead and its activity history. This cannot be undone.`}
+          onConfirm={handleDelete}
+        />
+      )}
     </div>
   )
 
