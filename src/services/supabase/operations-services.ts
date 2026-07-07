@@ -58,6 +58,44 @@ export async function getOperationsStats() {
   return { onboardedThisMonth, pendingOnboarding, expiringAgreements, total: data?.length ?? 0 }
 }
 
+export interface OperationsBreakdowns {
+  byAgreementStatus: { label: string; value: number }[]
+  byCategory: { label: string; value: number }[]
+  testBookingRate: number
+  listedRate: number
+}
+
+export async function getOperationsBreakdowns(): Promise<OperationsBreakdowns> {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('venues')
+    .select('category, agreement_status, test_booking_done, listed_on_platform')
+    .eq('is_active', true)
+  if (error) throw error
+
+  const rows = (data ?? []) as any[]
+  const agreementCounts = new Map<string, number>()
+  const categoryCounts = new Map<string, number>()
+  let testBookingDone = 0
+  let listed = 0
+
+  rows.forEach((v) => {
+    const agreementLabel = v.agreement_status ? String(v.agreement_status).replace(/_/g, ' ') : 'Not started'
+    agreementCounts.set(agreementLabel, (agreementCounts.get(agreementLabel) ?? 0) + 1)
+    const categoryLabel = v.category ? String(v.category).replace(/_/g, ' ') : 'Uncategorized'
+    categoryCounts.set(categoryLabel, (categoryCounts.get(categoryLabel) ?? 0) + 1)
+    if (v.test_booking_done) testBookingDone++
+    if (v.listed_on_platform) listed++
+  })
+
+  return {
+    byAgreementStatus: Array.from(agreementCounts.entries()).map(([label, value]) => ({ label, value })),
+    byCategory: Array.from(categoryCounts.entries()).map(([label, value]) => ({ label, value })),
+    testBookingRate: rows.length > 0 ? Math.round((testBookingDone / rows.length) * 100) : 0,
+    listedRate: rows.length > 0 ? Math.round((listed / rows.length) * 100) : 0,
+  }
+}
+
 export async function updateVenueOperations(id: string, input: Record<string, any>) {
   const supabase = createClient()
   const { data, error } = await supabase

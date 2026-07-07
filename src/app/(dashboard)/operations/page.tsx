@@ -3,14 +3,15 @@
 import { useMemo } from 'react'
 import { useAuth } from '@/context/auth-provider'
 import { isCityScoped } from '@/lib/permissions'
-import { useOperationsStats, useOperationsVenues } from '@/features/operations/hooks/use-operations'
+import { useOperationsStats, useOperationsVenues, useOperationsBreakdowns } from '@/features/operations/hooks/use-operations'
 import { StatCard } from '@/components/shared/stat-card'
 import { SectionHeader } from '@/components/shared/section-header'
+import { BreakdownBarCard } from '@/components/shared/breakdown-bar-card'
 import { VenueOnboardingList } from '@/features/operations/components/venue-onboarding-list'
 import { VendorList } from '@/features/operations/components/vendor-list'
 import { AddVendorModal } from '@/features/operations/components/add-vendor-modal'
 import { Card, CardContent } from '@/components/ui/card'
-import { Building2, CheckCircle2, Clock, AlertTriangle, MapPin } from 'lucide-react'
+import { Building2, CheckCircle2, Clock, AlertTriangle, MapPin, ClipboardCheck, Globe } from 'lucide-react'
 
 export default function OperationsDashboard() {
   const { user } = useAuth()
@@ -18,6 +19,7 @@ export default function OperationsDashboard() {
 
   const { data: stats, isLoading: statsLoading } = useOperationsStats()
   const { data: allVenues, isLoading: venuesLoading } = useOperationsVenues()
+  const { data: breakdowns, isLoading: breakdownsLoading } = useOperationsBreakdowns()
 
   const cityBreakdown = useMemo(() => {
     const map = new Map<string, { total: number; onboarded: number }>()
@@ -50,6 +52,30 @@ export default function OperationsDashboard() {
           iconColor="text-red-600" iconBg="bg-red-50 dark:bg-red-950" loading={statsLoading} />
         <StatCard label="Total Active Venues" value={stats?.total ?? 0} icon={Building2}
           iconColor="text-blue-600" iconBg="bg-blue-50 dark:bg-blue-950" loading={statsLoading} />
+      </div>
+
+      {/* Completion rates */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <StatCard label="Test Booking Completion" value={`${breakdowns?.testBookingRate ?? 0}%`}
+          sub="Of active venues" icon={ClipboardCheck}
+          iconColor="text-emerald-600" iconBg="bg-emerald-50 dark:bg-emerald-950" loading={breakdownsLoading} />
+        <StatCard label="Listed on Platform" value={`${breakdowns?.listedRate ?? 0}%`}
+          sub="Of active venues" icon={Globe}
+          iconColor="text-cyan-600" iconBg="bg-cyan-50 dark:bg-cyan-950" loading={breakdownsLoading} />
+      </div>
+
+      {/* Agreement status & category breakdowns */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <BreakdownBarCard
+          title="Venues by Agreement Status"
+          loading={breakdownsLoading}
+          data={(breakdowns?.byAgreementStatus ?? []).map((d) => ({ label: d.label, value: d.value }))}
+        />
+        <BreakdownBarCard
+          title="Venues by Category"
+          loading={breakdownsLoading}
+          data={(breakdowns?.byCategory ?? []).map((d) => ({ label: d.label, value: d.value }))}
+        />
       </div>
 
       {/* City-wise overview */}

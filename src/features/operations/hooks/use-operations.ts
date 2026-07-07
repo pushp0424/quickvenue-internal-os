@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  getOperationsVenues, getOperationsStats, updateVenueOperations,
+  getOperationsVenues, getOperationsStats, getOperationsBreakdowns, updateVenueOperations,
   getVendors, createVendor, updateVendor, deleteVendor,
 } from '@/services/supabase/operations-services'
 
@@ -18,6 +18,14 @@ export function useOperationsStats() {
   return useQuery({
     queryKey: ['operations-stats'],
     queryFn: getOperationsStats,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useOperationsBreakdowns() {
+  return useQuery({
+    queryKey: ['operations-breakdowns'],
+    queryFn: getOperationsBreakdowns,
     staleTime: 5 * 60 * 1000,
   })
 }
