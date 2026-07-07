@@ -57,7 +57,7 @@ export function VendorList() {
         <Card>
           <CardContent className="p-0 divide-y">
             {vendors.map((vendor) => (
-              <div key={vendor.id} className="flex items-center gap-4 px-6 py-4">
+              <div key={vendor.id} className="flex items-center gap-4 px-6 py-4 hover:bg-muted/40 transition-colors">
                 <div className="h-9 w-9 rounded-lg bg-[#0244C6]/10 flex items-center justify-center shrink-0">
                   <Truck className="h-4 w-4 text-[#0244C6]" />
                 </div>
