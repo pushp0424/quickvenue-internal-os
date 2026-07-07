@@ -86,6 +86,7 @@ export async function generatePayroll(month: string, generatedById: string) {
     .eq('profile.is_active', true)
   if (financialError) throw financialError
 
+  let totalNetPay = 0
   for (const row of (financialRows ?? []) as any[]) {
     const profileId = row.profile_id
     const basic = Number(row.salary_basic ?? 0)
@@ -129,7 +130,25 @@ export async function generatePayroll(month: string, generatedById: string) {
         net_pay: netPay,
       }, { onConflict: 'payroll_id,profile_id' })
     if (slipError) throw slipError
+    totalNetPay += netPay
   }
+
+  // Record the run's total net pay as one aggregate finance expense so the
+  // finance dashboard's expenses/burn-rate reflect payroll. Linked to
+  // payroll_id so re-runs upsert (no duplicates) and it cascades away if the
+  // run is deleted. Only the total is exposed, not individual salaries.
+  const { error: expenseError } = await supabase
+    .from('expenses' as any)
+    .upsert({
+      payroll_id: payrollId,
+      description: `Payroll — ${monthStart}`,
+      category: 'Salaries',
+      amount: totalNetPay,
+      expense_date: monthEnd,
+      is_active: true,
+      created_by: generatedById,
+    }, { onConflict: 'payroll_id' })
+  if (expenseError) throw expenseError
 
   return payrollRow
 }
@@ -202,4 +221,15 @@ export async function updateSlip(id: string, input: { deductions?: number; payme
   const { data, error } = await supabase.from('salary_slips' as any).update(update).eq('id', id).select().single()
   if (error) throw error
   return data
+}
+
+// =========================================
+// DELETE
+// =========================================
+export async function deletePayroll(id: string) {
+  const supabase = createClient()
+  // salary_slips and the linked aggregate finance expense both cascade away
+  // via their ON DELETE CASCADE FKs to payroll(id).
+  const { error } = await supabase.from('payroll' as any).delete().eq('id', id)
+  if (error) throw error
 }

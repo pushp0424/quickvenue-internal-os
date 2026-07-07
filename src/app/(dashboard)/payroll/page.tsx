@@ -3,15 +3,17 @@
 import { useState } from 'react'
 import { useAuth } from '@/context/auth-provider'
 import { hasPermission } from '@/lib/permissions'
-import { usePayrollRuns, useSlipsForRun } from '@/features/payroll/hooks/use-payroll'
+import { usePayrollRuns, useSlipsForRun, useDeletePayroll } from '@/features/payroll/hooks/use-payroll'
 import { GeneratePayrollModal } from '@/features/payroll/components/generate-payroll-modal'
 import { PayrollSummaryCards } from '@/features/payroll/components/payroll-summary-cards'
 import { SalarySlipsList } from '@/features/payroll/components/salary-slips-list'
 import { MySalarySlipsList } from '@/features/payroll/components/my-salary-slips-list'
 import { SectionHeader } from '@/components/shared/section-header'
+import { ConfirmDeleteButton } from '@/components/shared/confirm-delete-button'
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
+import { toast } from 'sonner'
 
 export default function PayrollPage() {
   const { user } = useAuth()
@@ -21,8 +23,20 @@ export default function PayrollPage() {
   const { data: runs, isLoading: runsLoading } = usePayrollRuns()
   const [selectedRunId, setSelectedRunId] = useState<string | undefined>(undefined)
   const effectiveRunId = selectedRunId ?? runs?.[0]?.id
+  const deletePayroll = useDeletePayroll()
 
   const { data: slips, isLoading: slipsLoading } = useSlipsForRun(effectiveRunId)
+
+  async function handleDeleteRun() {
+    if (!effectiveRunId) return
+    try {
+      await deletePayroll.mutateAsync(effectiveRunId)
+      setSelectedRunId(undefined)
+      toast.success('Payroll run deleted')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete payroll run')
+    }
+  }
 
   return (
     <div className="space-y-8 max-w-[1400px]">
@@ -50,6 +64,14 @@ export default function PayrollPage() {
                 ))}
               </SelectContent>
             </Select>
+            {effectiveRunId && (
+              <ConfirmDeleteButton
+                label="Delete Run"
+                title="Delete this payroll run?"
+                description="This permanently removes the run, all its salary slips, and the linked finance expense. This cannot be undone."
+                onConfirm={handleDeleteRun}
+              />
+            )}
           </div>
 
           <PayrollSummaryCards slips={slips ?? []} loading={runsLoading || slipsLoading} />

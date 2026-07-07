@@ -3,7 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   generatePayroll, getPayrollRuns, getSlipsForRun,
-  getMySlips, getSlip, updateSlip,
+  getMySlips, getSlip, updateSlip, deletePayroll,
 } from '@/services/supabase/payroll-services'
 
 export function usePayrollRuns() {
@@ -22,6 +22,19 @@ export function useGeneratePayroll() {
       qc.invalidateQueries({ queryKey: ['payroll-runs'] })
       qc.invalidateQueries({ queryKey: ['payroll-slips'] })
       qc.invalidateQueries({ queryKey: ['my-slips'] })
+    },
+  })
+}
+
+export function useDeletePayroll() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => deletePayroll(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['payroll-runs'] })
+      qc.invalidateQueries({ queryKey: ['payroll-slips'] })
+      qc.invalidateQueries({ queryKey: ['my-slips'] })
+      qc.invalidateQueries({ queryKey: ['finance-stats'] })
     },
   })
 }
